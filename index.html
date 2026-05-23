@@ -166,7 +166,7 @@ body{font-family:system-ui,-apple-system,sans-serif;color:var(--txt);font-size:1
     <span class="plbl" id="plbl">Getting started</span>
   </div>
   <div class="cw">
-    <div class="cm" id="cm"></div>
+    <div class="cm" id="cm"><div class="msg"><div class="av av-ai">AI</div><div class="bub bub-ai" id="staticWelcome">Welcome to the Australian Budget CGT adviser. Loading...</div></div></div>
     <div class="qr" id="qr"></div>
     <div class="cin">
       <input type="text" id="mi" placeholder="Describe your situation or answer the question..." onkeydown="if(event.key==='Enter'&&!event.shiftKey)send()">
@@ -392,10 +392,15 @@ async function init() {
     hist.push({ role: 'assistant', content: text });
   } catch(e) {
     hideT();
-    const msg = e.message && e.message.includes('404')
-      ? 'The AI function is not deployed yet. If you just uploaded to Netlify, make sure you uploaded the whole folder (not just the HTML file) and added your ANTHROPIC_API_KEY environment variable, then redeploy.'
-      : 'Connection error: ' + e.message + '. Please refresh the page and try again.';
-    addMsg(msg, 'err');
+    const sw2 = document.getElementById('staticWelcome');
+    if (sw2) sw2.closest('.msg').remove();
+    const area = document.getElementById('cm');
+    if (area) {
+      const w = document.createElement('div');
+      w.className = 'msg';
+      w.innerHTML = '<div class="av av-ai">AI</div><div class="bub bub-err" style="background:#fcebeb;border:1px solid #f7c1c1;color:#791f1f;padding:12px 16px;border-radius:8px">Error: ' + e.message + '</div>';
+      area.appendChild(w);
+    }
   }
   setQP(['Should I sell before July 2027?','Buy investment or convert my PPOR?','Do I need a 1 July 2027 valuation?','First home buyer questions','Business or trust structure review','Buy new build vs established?']);
   $('sb').disabled = false;
