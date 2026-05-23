@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Australian Budget CGT Property Adviser</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --bg:#fff;--bg2:#f8f8f6;--bg3:#f0f0ee;
+  --txt:#1a1a1a;--txt2:#666;
+  --bdr:rgba(0,0,0,0.12);--bdr2:rgba(0,0,0,0.22);
+  --info-bg:#e6f1fb;--info-txt:#185fa5;
+  --warn-bg:#faeeda;--warn-txt:#854f0b;
+  --r:8px;--rl:12px;
+  --red:#c42a2a;--red2:#a32d2d;--redl:#fcebeb;
+  --green:#3b6d11;--greenl:#eaf3de;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1e1e1e;--bg2:#2a2a2a;--bg3:#333;
+  --txt:#f0f0f0;--txt2:#aaa;
+  --bdr:rgba(255,255,255,0.1);--bdr2:rgba(255,255,255,0.2);
+}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;color:var(--txt);font-size:15px;line-height:1.6;background:#ece9e3;min-height:100vh;padding:1.5rem 1rem}
+.outer{max-width:800px;margin:0 auto}
+
+
+#keyLink{font-size:12px;color:var(--txt2);margin-top:12px}
+#keyLink a{color:var(--info-txt)}
+
+/* App */
+
+.hdr{background:var(--red);border-radius:var(--rl);padding:1.2rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:12px}
+.hico{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hdr h1{font-size:17px;font-weight:500;color:#fff;margin-bottom:2px}
+.hdr p{font-size:12px;color:rgba(255,255,255,.72)}
+.rbtn{border:0.5px solid rgba(255,255,255,0.4);background:none;color:rgba(255,255,255,0.85);border-radius:999px;padding:5px 14px;font-size:12px;cursor:pointer;margin-left:auto;white-space:nowrap}
+.rbtn:hover{background:rgba(255,255,255,0.15)}
+
+/* Progress */
+.pr{display:flex;gap:5px;align-items:center;margin-bottom:1rem}
+.ps{height:4px;flex:1;border-radius:2px;background:var(--bdr);transition:background .3s}
+.ps.done{background:var(--red)}.ps.active{background:#e24b4a}
+.plbl{font-size:11px;color:var(--txt2);min-width:110px;text-align:right}
+
+/* Chat */
+.cw{background:var(--bg2);border-radius:var(--rl);overflow:hidden;border:0.5px solid var(--bdr)}
+.cm{padding:1.25rem;display:flex;flex-direction:column;gap:10px;min-height:220px;max-height:420px;overflow-y:auto}
+.msg{display:flex;gap:10px;align-items:flex-start}
+.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:2px}
+.av-ai{background:var(--red);color:#fff}.av-u{background:var(--info-bg);color:var(--info-txt)}
+.bub{padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.65;max-width:calc(100% - 42px)}
+.bub-ai{background:var(--bg);border:0.5px solid var(--bdr);border-top-left-radius:3px;color:var(--txt)}
+.bub-u{background:var(--red);color:#fff;border-top-right-radius:3px;margin-left:auto}
+.bub-t{background:var(--bg);border:0.5px solid var(--bdr);color:var(--txt2);font-style:italic}
+.bub-err{background:var(--redl);border:0.5px solid #f7c1c1;color:var(--red2);border-top-left-radius:3px}
+.qr{display:flex;flex-wrap:wrap;gap:6px;padding:0 1.25rem .75rem}
+.qp{padding:6px 13px;border-radius:999px;border:0.5px solid var(--red);background:var(--bg);font-size:12px;cursor:pointer;color:var(--red2)}
+.qp:hover{background:var(--redl)}
+.cin{border-top:0.5px solid var(--bdr);padding:.75rem 1rem;display:flex;gap:8px;background:var(--bg)}
+.cin input{flex:1;border:0.5px solid var(--bdr2);border-radius:var(--r);padding:9px 12px;font-size:14px;background:var(--bg);color:var(--txt)}
+.cin input:focus{outline:none;border-color:var(--red)}
+.sbtn{background:var(--red);color:#fff;border:none;border-radius:var(--r);padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer}
+.sbtn:disabled{opacity:.4;cursor:not-allowed}
+
+/* Collected */
+.slbl{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--txt2);margin-bottom:.5rem}
+.cg{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:7px;margin-top:.6rem}
+.ci{background:var(--bg);border:0.5px solid var(--bdr);border-radius:var(--r);padding:9px 12px}
+.ci .cl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--txt2);font-weight:500}
+.ci .cv{font-size:14px;font-weight:500;margin-top:3px;color:var(--txt)}
+
+/* Results */
+.rw{margin-top:1rem}
+.rh{background:var(--red);border-radius:var(--rl);padding:1.25rem 1.5rem;color:#fff;margin-bottom:1rem}
+.rh .rt{font-size:11px;opacity:.75;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.rh h2{font-size:19px;font-weight:500;margin-bottom:8px}
+.rh p{font-size:13px;opacity:.85;line-height:1.6}
+.vpill{display:inline-flex;align-items:center;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:500;margin-bottom:10px}
+.vg{background:var(--greenl);color:var(--green)}.va{background:var(--warn-bg);color:var(--warn-txt)}
+.vr{background:var(--redl);color:var(--red2)}.vi{background:var(--info-bg);color:var(--info-txt)}.vp{background:#eeedfe;color:#3c3489}
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px;margin-bottom:1rem}
+.mc{background:var(--bg2);border-radius:var(--r);padding:11px 13px}
+.mc .ml{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--txt2);font-weight:500}
+.mc .mv{font-size:19px;font-weight:500;margin-top:3px}
+.pos{color:var(--green)}.neg{color:var(--red2)}.neu{color:var(--txt)}
+.es{background:var(--bg);border:0.5px solid var(--bdr);border-radius:var(--rl);margin-bottom:.75rem;overflow:hidden}
+.eh{padding:.9rem 1.25rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:12px;user-select:none}
+.eh:hover{background:var(--bg2)}
+.et{font-size:14px;font-weight:500;color:var(--txt)}.es2{font-size:12px;color:var(--txt2);margin-top:2px}
+.eb{padding:0 1.25rem 1rem;display:none;border-top:0.5px solid var(--bdr)}
+.eb.open{display:block;padding-top:.75rem}
+.eb table{width:100%;border-collapse:collapse;margin-bottom:.75rem}
+.eb td{padding:7px 8px;border-bottom:0.5px solid var(--bdr);font-size:13px;vertical-align:top;color:var(--txt)}
+.eb td:first-child{color:var(--txt2);width:60%}
+.eb td:last-child{font-weight:500;text-align:right}
+.eb tr.total td{border-top:1px solid var(--bdr2);border-bottom:none;font-weight:500}
+.iaw{margin-top:.75rem;display:flex;gap:7px}
+.iaw input{flex:1;border:0.5px solid var(--bdr2);border-radius:var(--r);padding:7px 10px;font-size:13px;background:var(--bg);color:var(--txt)}
+.iaw input:focus{outline:none;border-color:var(--red)}
+.iaw button{background:var(--red);color:#fff;border:none;border-radius:var(--r);padding:7px 13px;font-size:12px;cursor:pointer}
+.ia-ans{margin-top:8px;font-size:13px;color:var(--txt2);background:var(--bg2);border-radius:var(--r);padding:10px 12px;line-height:1.7;display:none}
+.disc{font-size:11px;color:var(--txt2);border:0.5px solid var(--bdr);border-radius:var(--r);padding:10px 12px;margin-top:1rem;line-height:1.6}
+.hidden{display:none}
+.sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+@media(max-width:500px){.sc-grid{grid-template-columns:1fr}}
+.sc{background:var(--bg);border:0.5px solid var(--bdr);border-radius:10px;padding:1rem}
+.sc.best{border:1.5px solid var(--green)}
+.sc .stag{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--txt2);margin-bottom:5px}
+.sc h3{font-size:14px;font-weight:500;margin-bottom:8px;color:var(--txt)}
+.sc .sr{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:0.5px solid var(--bdr);color:var(--txt)}
+.sc .sr:last-of-type{border-bottom:none}
+.sc .snote{margin-top:10px;font-size:12px;padding:6px 10px;border-radius:6px;line-height:1.5}
+.tl{margin:1rem 0;display:flex;flex-direction:column}
+.tli{display:flex;gap:12px;align-items:flex-start}
+.tld{width:12px;height:12px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:5px}
+.tll{width:2px;background:var(--bdr);flex-shrink:0;margin-left:5px;height:24px}
+.tlc{padding-bottom:16px;font-size:13px}
+.tldate{font-weight:500;color:var(--txt)}.tldesc{color:var(--txt2);margin-top:2px}
+.nsg{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-bottom:1rem}
+.ns{background:var(--bg);border:0.5px solid var(--bdr);border-radius:10px;padding:.85rem 1rem}
+.ns .nt{font-size:13px;font-weight:500;margin-bottom:4px;color:var(--txt)}
+.ns .nd{font-size:12px;color:var(--txt2);line-height:1.5}
+
+/* ── Persistent AI Adviser ── */
+#advPanel{margin-top:1.5rem;background:var(--bg);border:0.5px solid var(--bdr);border-radius:var(--rl);overflow:hidden;display:none}
+#advPanel.visible{display:block}
+.adv-header{background:var(--red);padding:1rem 1.25rem;display:flex;align-items:center;gap:10px}
+.adv-header h3{color:#fff;font-size:15px;font-weight:500;margin:0}
+.adv-header p{color:rgba(255,255,255,.75);font-size:12px;margin:0}
+.adv-history{padding:1rem 1.25rem;display:flex;flex-direction:column;gap:10px;max-height:500px;overflow-y:auto;background:var(--bg2)}
+.adv-msg{display:flex;gap:10px;align-items:flex-start}
+.adv-bub{padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.7;max-width:calc(100% - 42px);white-space:pre-wrap}
+.adv-bub-ai{background:var(--bg);border:0.5px solid var(--bdr);border-top-left-radius:3px;color:var(--txt)}
+.adv-bub-u{background:var(--red);color:#fff;border-top-right-radius:3px;margin-left:auto}
+.adv-bub-t{background:var(--bg);border:0.5px solid var(--bdr);color:var(--txt2);font-style:italic}
+.adv-chips{display:flex;flex-wrap:wrap;gap:6px;padding:.75rem 1.25rem;border-top:0.5px solid var(--bdr);background:var(--bg2)}
+.adv-chip{padding:6px 13px;border-radius:999px;border:0.5px solid var(--red);background:var(--bg);font-size:12px;cursor:pointer;color:var(--red2)}
+.adv-chip:hover{background:var(--redl)}
+.adv-input-row{border-top:0.5px solid var(--bdr);padding:.75rem 1rem;display:flex;gap:8px;background:var(--bg)}
+.adv-input-row input{flex:1;border:0.5px solid var(--bdr2);border-radius:var(--r);padding:9px 12px;font-size:14px;background:var(--bg);color:var(--txt)}
+.adv-input-row input:focus{outline:none;border-color:var(--red)}
+.adv-input-row button{background:var(--red);color:#fff;border:none;border-radius:var(--r);padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer}
+.adv-input-row button:disabled{opacity:.4;cursor:not-allowed}
+.mc{position:relative;padding-right:28px}.mc-ask{position:absolute;top:8px;right:7px;width:18px;height:18px;border-radius:50%;background:var(--bg);border:0.5px solid var(--bdr2);color:var(--txt2);font-size:10px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;transition:background .15s}.mc-ask:hover{background:#c42a2a;color:#fff;border-color:#c42a2a}
+</style>
+</head>
+<body>
+<div class="outer">
+
+<!-- NO KEY GATE - key handled server side -->
+<!-- MAIN APP -->
+<div id="app">
+  <div class="hdr">
+    <div class="hico"><i class="ti ti-building-estate" style="font-size:18px;color:#fff" aria-hidden="true"></i></div>
+    <div>
+      <h1>Australian Budget CGT property adviser</h1>
+      <p>All scenarios · Conversational intake · AI-powered analysis</p>
+    </div>
+    <button class="rbtn" onclick="restart()">Start over</button>
+  </div>
+  <div class="pr">
+    <div class="ps" id="ps1"></div><div class="ps" id="ps2"></div>
+    <div class="ps" id="ps3"></div><div class="ps" id="ps4"></div><div class="ps" id="ps5"></div>
+    <span class="plbl" id="plbl">Getting started</span>
+  </div>
+  <div class="cw">
+    <div class="cm" id="cm"><div class="msg"><div class="av av-ai">AI</div><div class="bub bub-ai" id="staticWelcome">Welcome to the Australian Budget CGT adviser. Loading...</div></div></div>
+    <div class="qr" id="qr"></div>
+    <div class="cin">
+      <input type="text" id="mi" placeholder="Describe your situation or answer the question..." onkeydown="if(event.key==='Enter'&&!event.shiftKey)send()">
+      <button class="sbtn" id="sb" onclick="send()">Send</button>
+    </div>
+  </div>
+  <div class="hidden" id="cw2">
+    <div class="slbl" style="margin-top:1rem">Information collected</div>
+    <div class="cg" id="cg"></div>
+  </div>
+  <div class="rw hidden" id="rw"></div>
+</div>
+
+</div><!-- /outer -->
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+
+let hist = [], stage = 'intake', tel = null;
+const D = {scenarioType:null,assetUse:null,heldBefore:null,heldYears:null,costBase:null,currentValue:null,transitionValue:null,futureValue:null,ownerPct:null,mtr:null,expectedGrowth:null,yearsHorizon:null,loanBalance:null,interestRate:null,annualIncome:null,annualExpenses:null,newPropPrice:null,newPropLoan:null,newPropRent:null,newPropExpenses:null,pporConvertRent:null,pporConvertExp:null,inflationRate:null,yearsToReform:null,yearsAfterReform:null};
+const DL = {scenarioType:'Scenario',assetUse:'Asset use',heldBefore:'Held before Budget?',heldYears:'Years held',costBase:'Cost base',currentValue:'Current value',transitionValue:'1 Jul 2027 value',futureValue:'Future sale value',ownerPct:'Ownership %',mtr:'Tax rate',expectedGrowth:'Growth %',yearsHorizon:'Horizon (yr)',loanBalance:'Loan balance',interestRate:'Interest rate',annualIncome:'Annual income',annualExpenses:'Annual expenses',newPropPrice:'New prop price',newPropLoan:'New prop loan',newPropRent:'New prop rent',newPropExpenses:'New prop expenses',pporConvertRent:'PPOR rent',pporConvertExp:'PPOR expenses',inflationRate:'Inflation',yearsToReform:'Yrs to reform',yearsAfterReform:'Yrs after reform'};
+
+// ─── KEY GATE ─────────────────────────────────────────────────────────────────
+
+
+// All DOM-ready setup in one place
+function domReady(fn) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', fn);
+  } else {
+    fn();
+  }
+}
+
+function copyCmd() {
+  var cmd = 'python -m http.server 8000';
+  if (navigator.clipboard) { navigator.clipboard.writeText(cmd); }
+  var btn = document.querySelector('#fileWarning button');
+  if (btn) { btn.textContent = 'Copied!'; setTimeout(function(){ btn.textContent = 'Copy'; }, 2000); }
+}
+
+domReady(function() {
+  // Show file:// warning if needed
+  // Try to restore key from localStorage (works in real browser, may be blocked in sandbox)
+  init();
+});
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+const fmt = x => { x = Math.round(Number(x)||0); return (x<0?'-':'')+'$'+Math.abs(x).toLocaleString('en-AU'); };
+const pct = x => (Math.round((x||0)*10)/10)+'%';
+const fv = (p,r,y) => p * Math.pow(1+(r||0)/100, y);
+const n = v => parseFloat(v)||0;
+const $ = id => document.getElementById(id);
+
+function addMsg(html, role) {
+  const area = $('cm'), w = document.createElement('div');
+  w.className = 'msg';
+  if (role === 'user') {
+    w.innerHTML = `<div class="bub bub-u" style="margin-left:auto">${html}</div><div class="av av-u">You</div>`;
+  } else {
+    const cls = role === 't' ? 'bub-t' : role === 'err' ? 'bub-err' : 'bub-ai';
+    w.innerHTML = `<div class="av av-ai">AI</div><div class="bub ${cls}">${html}</div>`;
+  }
+  area.appendChild(w);
+  area.scrollTop = area.scrollHeight;
+  return w.querySelector('.bub');
+}
+
+function showT() {
+  const el = addMsg('Thinking…', 't');
+  let i = 0;
+  el._t = setInterval(() => { el.textContent = 'Thinking' + ['…','.. ','.  '][i++%3]; }, 400);
+  tel = el;
+  return el;
+}
+function hideT() {
+  if (tel) { clearInterval(tel._t); tel.closest('.msg').remove(); tel = null; }
+}
+
+function setQP(picks) {
+  $('qr').innerHTML = picks.map(p =>
+    `<button class="qp" onclick="useQP(this,'${p.replace(/'/g,"\\'")}')">${p}</button>`
+  ).join('');
+}
+function useQP(b, v) { $('qr').innerHTML = ''; $('mi').value = v; send(); }
+
+function updProg(s) {
+  const L = ['Getting started','Understanding situation','Gathering details','Building analysis','Complete'];
+  for (let i = 1; i <= 5; i++) {
+    $('ps'+i).className = 'ps' + (i < s ? ' done' : i === s ? ' active' : '');
+  }
+  $('plbl').textContent = L[Math.min(s-1, 4)];
+}
+
+function updColl() {
+  const w = $('cw2'), g = $('cg');
+  const f = Object.entries(D).filter(([,v]) => v !== null && v !== '');
+  if (!f.length) { w.classList.add('hidden'); return; }
+  w.classList.remove('hidden');
+  g.innerHTML = f.map(([k,v]) =>
+    `<div class="ci"><div class="cl">${DL[k]||k}</div><div class="cv">${typeof v==='number'&&Math.abs(v)>999?fmt(v):v}</div></div>`
+  ).join('');
+}
+
+function progFromData() {
+  if (stage === 'results') { updProg(5); return; }
+  const r = Object.values(D).filter(v => v !== null).length / Object.keys(D).length;
+  updProg(r === 0 ? 1 : r < .15 ? 2 : r < .35 ? 3 : 4);
+}
+
+function extractTags(text) {
+  (text.match(/__SET_(\w+):([^_\n]+?)__/g) || []).forEach(tag => {
+    const m = tag.match(/__SET_(\w+):([^_\n]+?)__/);
+    if (m && D.hasOwnProperty(m[1])) {
+      const raw = m[2].trim(), nn = parseFloat(raw.replace(/,/g,''));
+      D[m[1]] = isNaN(nn) ? raw : nn;
+    }
+  });
+  if (text.includes('__COMPLETE__')) {
+    // Safety override: if conversation mentions PPOR but scenario is wrong, fix it
+    const fullConv = hist.map(m => m.content).join(' ').toLowerCase();
+    const ppor_keywords = ['live in', 'my home', 'owner occupied', 'principal place', 'ppor', 'where i live', 'i live there', 'live there'];
+    const is_ppor = ppor_keywords.some(k => fullConv.includes(k));
+    if (is_ppor && (!D.scenarioType || D.scenarioType === 'hold_or_sell')) {
+      D.scenarioType = 'ppor_convert';
+    }
+    stage = 'results'; buildResults();
+  }
+}
+
+// ─── API CALL ─────────────────────────────────────────────────────────────────
+async function callAPI(systemPrompt, messages, maxTokens = 600) {
+  const resp = await fetch(window.location.hostname === 'localhost' ? '/api/claude' : '/.netlify/functions/claude', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: maxTokens,
+      system: systemPrompt,
+      messages: messages
+    })
+  });
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error.message || 'API error');
+  return (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+}
+
+// ─── CONVERSATION ─────────────────────────────────────────────────────────────
+async function callAI(userMsg) {
+  const filled = Object.entries(D).filter(([,v]) => v !== null && v !== '').map(([k,v]) => `${k}:${v}`).join(', ') || 'none';
+  const sys = `You are an expert Australian Budget CGT property adviser collecting client information conversationally.
+
+CURRENT DATA: ${filled}
+DETECTED SCENARIO: ${D.scenarioType || 'not yet determined'}
+
+STEP 1 — DETECT SCENARIO IMMEDIATELY from first message:
+- Client owns a home they LIVE IN + mentions buying another property = ppor_convert (MOST COMMON)
+- Client has an INVESTMENT PROPERTY and deciding whether to keep or sell = hold_or_sell  
+- Client asking about TIMING of a sale they have decided on = sell_before_reform or sell_after_reform
+- Client wants to BUY a new investment = buy_established or buy_new_build
+- Client asking whether to buy NOW or WAIT = buy_or_wait
+- Client is a FIRST HOME BUYER = first_home_buyer
+- Client needs a VALUATION = valuation
+- Client reviewing STRUCTURE = trust_structure or refinance_restructure
+- Client selling a BUSINESS = business_sale
+
+CRITICAL SCENARIO RULES — read every line before setting scenarioType:
+- ANY mention of "I live in", "my home", "where I live", "owner occupied", "principal place", "PPOR" → ppor_convert IMMEDIATELY, no exceptions
+- "I own a home and want to buy another" → ppor_convert, ALWAYS, first message
+- "Should I sell my home / house / property" (where they live) → ppor_convert
+- "thinking of selling where I live" → ppor_convert
+- DO NOT use hold_or_sell unless client explicitly says "investment property", "rental property", "I don't live there", "tenant"
+- IF IN DOUBT → ppor_convert (it is always safer and handles more cases)
+- NEVER default to hold_or_sell for ambiguous situations
+- NEVER leave scenarioType unset — always set it in the FIRST response
+
+STEP 2 — COLLECT DATA EFFICIENTLY (max 3-4 questions total):
+For ppor_convert ask in order: (1) current home value + what they paid, (2) new property budget, (3) income/tax bracket. That is all you need — then trigger __COMPLETE__.
+For hold_or_sell ask: (1) property value + cost base, (2) loan balance + rental income, (3) tax rate. Then __COMPLETE__.
+For buy scenarios ask: (1) purchase price + expected rent, (2) tax rate. Then __COMPLETE__.
+For valuation ask: (1) current value + original purchase price, (2) how long held. Then __COMPLETE__.
+
+DO NOT ask more than 4 questions. Apply smart defaults for anything else.
+
+SMART DEFAULTS: expectedGrowth:4.5, yearsHorizon:7, inflationRate:2.5, interestRate:6.2, yearsToReform:1, yearsAfterReform:3, ownerPct:100, annualExpenses:8000, heldYears:6, loanBalance:0, annualIncome:0
+
+EXTRACT NUMBERS silently: __SET_fieldName:number__ (e.g. "$1.3m" → __SET_currentValue:1300000__)
+SET SCENARIO immediately: __SET_scenarioType:ppor_convert__
+TRIGGER when ready: __COMPLETE__
+
+TONE: Warm, concise, plain English. Australian English. Max 2 sentences per response.
+
+CRITICAL: Tags are invisible codes. NEVER show them to the client. Only natural English visible.`;
+
+  hist.push({ role: 'user', content: userMsg });
+  return await callAPI(sys, hist.slice(-20));
+}
+
+async function send() {
+  const inp = $('mi'), msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  $('sb').disabled = true;
+  $('qr').innerHTML = '';
+  addMsg(msg, 'user');
+  showT();
+  try {
+    const reply = await callAI(msg);
+    hideT();
+    const clean = reply.replace(/__SET_\w+:[\s\S]*?(?:__|\n)/g, '').replace(/__COMPLETE__/g, '').replace(/__[\w:]+(?:__|\n|$)/gm, '').replace(/\s{2,}/g, ' ').trim();
+    if (clean) addMsg(clean, 'ai');
+    hist.push({ role: 'assistant', content: reply });
+    extractTags(reply);
+    updColl();
+    progFromData();
+  } catch(e) {
+    hideT();
+    addMsg('Error: ' + e.message + ' — please check your API key is valid and has credit.', 'err');
+  }
+  $('sb').disabled = false;
+  $('mi').focus();
+}
+
+async function init() {
+  $('sb').disabled = true;
+  // Show static content immediately so page is never blank
+  const area = $('cm');
+  if (area && area.children.length === 0) {
+    const placeholder = document.createElement('div');
+    placeholder.className = 'msg';
+    placeholder.innerHTML = '<div class="av av-ai">AI</div><div class="bub bub-t" id="initPlaceholder">Connecting...</div>';
+    area.appendChild(placeholder);
+  }
+  const sys = `You are an Australian Budget CGT property adviser starting a session. In exactly 2 sentences: (1) a warm welcome, (2) an open question asking what property decision they need help with. Mention you handle selling, buying, PPOR conversion, valuations, structures. Australian English. Be natural, not corporate.`;
+  try {
+    const text = await callAPI(sys, [{ role: 'user', content: 'start' }], 150);
+    hideT();
+    addMsg(text, 'ai');
+    hist.push({ role: 'assistant', content: text });
+  } catch(e) {
+    hideT();
+    const sw2 = document.getElementById('staticWelcome');
+    if (sw2) sw2.closest('.msg').remove();
+    const area = document.getElementById('cm');
+    if (area) {
+      const w = document.createElement('div');
+      w.className = 'msg';
+      w.innerHTML = '<div class="av av-ai">AI</div><div class="bub bub-err" style="background:#fcebeb;border:1px solid #f7c1c1;color:#791f1f;padding:12px 16px;border-radius:8px">Error: ' + e.message + '</div>';
+      area.appendChild(w);
+    }
+  }
+  setQP(['Should I sell before July 2027?','Buy investment or convert my PPOR?','Do I need a 1 July 2027 valuation?','First home buyer questions','Business or trust structure review','Buy new build vs established?']);
+  $('sb').disabled = false;
+}
+
+function restart() {
+  Object.keys(D).forEach(k => D[k] = null);
+  hist = []; advHist = []; stage = 'intake';
+  $('cm').innerHTML = ''; $('qr').innerHTML = '';
+  $('cw2').classList.add('hidden'); $('rw').classList.add('hidden');
+  var ap = document.getElementById('advPanel');
+  if (ap) { ap.classList.remove('visible'); document.getElementById('advHist').innerHTML = ''; }
+  updProg(1); init();
+}
+
+// ─── RESULTS ENGINE ───────────────────────────────────────────────────────────
+function askMetric(label, value) {
+  var panel = document.getElementById('advPanel');
+  if (!panel) return;
+  panel.classList.add('visible');
+  if (!document.getElementById('advHist') || document.getElementById('advHist').children.length === 0) {
+    showAdviser();
+  }
+  var q = 'Show me exactly how ' + label + ' (' + value + ') was calculated — walk me through every step.';
+  var inp = document.getElementById('advIn');
+  if (!inp) return;
+  inp.value = q;
+  inp.focus();
+  setTimeout(function(){
+    advSend();
+    panel.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 150);
+}
+
+function buildResults() {
+  updProg(5);
+  const sc = D.scenarioType || 'hold_or_sell';
+  // Warn if scenario defaulted
+  if (!D.scenarioType) {
+    console.warn('CGT Adviser: No scenario detected, defaulting to hold_or_sell');
+  }
+  const rw = $('rw');
+  rw.classList.remove('hidden');
+  const builders = {
+    sell_before_reform: buildSellBefore, sell_after_reform: buildSellAfter,
+    hold_or_sell: buildHoldOrSell, ppor_convert: buildPPORConvert,
+    buy_established: buildBuyEstablished, buy_new_build: buildBuyNewBuild,
+    buy_or_wait: buildBuyOrWait, first_home_buyer: buildFirstHome,
+    valuation: buildValuation, refinance_restructure: buildRefinance,
+    trust_structure: buildTrustStructure, business_sale: buildBusinessSale
+  };
+  rw.innerHTML = (builders[sc] || buildHoldOrSell)();
+  rw.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const postQPs = {
+    sell_before_reform: ['Explain the 50% CGT discount','What is grandfathering?','Compare selling before vs after'],
+    sell_after_reform: ['How is the real gain calculated?','What valuation do I need?','Compare before vs after reform'],
+    hold_or_sell: ['What if I sell before 1 Jul 2027?','Explain negative gearing','Walk me through the numbers'],
+    ppor_convert: ['What is the 6-year rule?','Explain partial PPOR exemption','Which option has better cash flow?'],
+    buy_established: ['How does post-reform CGT affect this?','Is negative gearing still worth it?','Compare to a new build'],
+    buy_new_build: ['Why do new builds get better treatment?','Compare new vs established','What about depreciation?'],
+    buy_or_wait: ['What happens to prices if I wait?','How does timing affect CGT?','What if rates change?'],
+    first_home_buyer: ['What grants are available?','Should I buy now or wait?','How does the Budget affect me?'],
+    valuation: ['How do I order a valuation?','Is CoreLogic enough?','What if I miss the date?'],
+    refinance_restructure: ['Should I fix my rate?','What is debt recycling?','Does structure matter for CGT?'],
+    trust_structure: ['Can a trust access the 50% discount?','What are the restructure costs?','Company vs trust?'],
+    business_sale: ['What is the 15-year exemption?','Do I qualify for small biz concessions?','Shares vs assets?']
+  };
+  setQP(postQPs[sc] || ['Explain the result','What should I do next?','Adjust my figures']);
+  // Reset adviser for new results
+  advHist = [];
+  const advArea = document.getElementById('advHist');
+  if (advArea) advArea.innerHTML = '';
+  injectAdviserPanel();
+  showAdviser();
+}
+
+function esec(id, title, sub, rows, iid, defQ) {
+  return `<div class="es" id="es-${id}">
+    <div class="eh" onclick="tog('${id}')">
+      <div><div class="et">${title}</div><div class="es2">${sub}</div></div>
+      <i class="ti ti-chevron-down" id="eti-${id}" style="color:var(--txt2);font-size:16px;flex-shrink:0"></i>
+    </div>
+    <div class="eb" id="ebb-${id}">
+      <table>${rows.map((r,i) => r[0]==='---'
+        ? `<tr><td colspan="2" style="border-bottom:0.5px solid var(--bdr2);padding:3px 0"></td></tr>`
+        : `<tr${i===rows.length-1?' class="total"':''}><td>${r[0]}</td><td>${r[1]}</td></tr>`
+      ).join('')}</table>
+      <div class="iaw">
+        <input type="text" id="ia-${iid}" placeholder="${defQ||'Ask about this section...'}" onkeydown="if(event.key==='Enter')askS('${iid}','${title}')">
+        <button onclick="askS('${iid}','${title}')">Ask ↗</button>
+      </div>
+      <div class="ia-ans" id="ians-${iid}"></div>
+    </div>
+  </div>`;
+}
+
+function tog(id) {
+  const b = $('ebb-'+id), ic = $('eti-'+id), o = b.classList.contains('open');
+  b.classList.toggle('open', !o);
+  if (ic) ic.style.transform = o ? '' : 'rotate(180deg)';
+}
+
+async function askS(id, title) {
+  const inp = $('ia-'+id), q = inp.value.trim();
+  if (!q) return;
+  inp.value = '';
+  const ans = $('ians-'+id);
+  ans.style.display = 'block';
+  ans.textContent = 'Thinking…';
+  const df = Object.entries(D).filter(([,v]) => v !== null).map(([k,v]) => `${k}:${v}`).join(', ');
+  const sys = `You are an expert Australian property tax adviser. Answer the user's question about the "${title}" section of the analysis. 2-3 paragraphs max, plain English, Australian English. Always note this is general information only. Data: ${df}`;
+  try {
+    const text = await callAPI(sys, [{ role: 'user', content: q }], 500);
+    ans.textContent = text;
+  } catch(e) {
+    ans.textContent = 'Error: ' + e.message;
+  }
+}
+
+function ns(steps) {
+  const icons = ['ti-user-check','ti-calculator','ti-clock','ti-file-description'];
+  return `<div class="slbl" style="margin-top:1.25rem">Recommended next steps</div>
+    <div class="nsg">${steps.map((s,i) =>
+      `<div class="ns"><i class="ti ${icons[i%4]}" style="font-size:18px;color:var(--red);display:block;margin-bottom:6px"></i><div class="nt">Step ${i+1}</div><div class="nd">${s}</div></div>`
+    ).join('')}</div>`;
+}
+
+function disc() {
+  return `<div class="disc"><strong>General information only.</strong> Not tax, legal, financial or credit advice. All figures are indicative estimates based on simplified assumptions. Always obtain independent professional advice before acting.</div>`;
+}
+
+// ─── SCENARIO BUILDERS ────────────────────────────────────────────────────────
+function buildSellBefore() {
+  const cost=n(D.costBase),cur=n(D.currentValue),mtr=n(D.mtr)/100||0.47;
+  const loan=n(D.loanBalance),inc=n(D.annualIncome),exp=n(D.annualExpenses)||8000,rate=n(D.interestRate)||6.2;
+  const gr=n(D.expectedGrowth)||4.5,yrTo=n(D.yearsToReform)||1,yrAft=n(D.yearsAfterReform)||3,sc=0.025;
+  const netNow=cur*(1-sc),gainNow=Math.max(0,netNow-cost),cgtNow=gainNow*0.5*mtr;
+  const futLater=fv(cur,gr,yrTo+yrAft),netLater=futLater*(1-sc);
+  const preGain=Math.max(0,fv(cur,gr,yrTo)-cost),preCGT=preGain*0.5*mtr;
+  const inflAdj=fv(fv(cur,gr,yrTo),2.5,yrAft);
+  const postGain=Math.max(0,netLater-inflAdj),postCGT=Math.max(postGain*mtr,postGain*0.3);
+  const cgtLater=preCGT+postCGT,annCF=inc-exp-(loan*rate/100),totalCF=annCF*(yrTo+yrAft);
+  const netWait=(netLater-cgtLater+totalCF)-(netNow-cgtNow),sellBetter=netWait<0;
+  return `<div class="rh"><div class="rt">Analysis: sell before reform</div>
+    <span class="vpill ${sellBetter?'vg':'va'}">${sellBetter?'Selling before reform looks favourable':'Holding past reform may be better'}</span>
+    <h2>${sellBetter?'Selling before 1 July 2027 is ahead on these figures':'Holding past the reform date may be worth it'}</h2>
+    <p>Selling now nets ${fmt(netNow-cgtNow)} after CGT. Waiting until after the reform and selling later nets approximately ${fmt(netLater-cgtLater+totalCF)} — ${fmt(Math.abs(netWait))} ${sellBetter?'in favour of selling now':'in favour of waiting'}.</p></div>
+  <div class="mg">
+    <div class="mc"><div class="ml">CGT if sold now</div><div class="mv neg">${fmt(cgtNow)}</div><button class="mc-ask" onclick="askMetric('CGT if sold now','${fmt(cgtNow)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Net proceeds now</div><div class="mv pos">${fmt(netNow-cgtNow)}</div><button class="mc-ask" onclick="askMetric('Net proceeds now','${fmt(netNow-cgtNow)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">CGT if sold later</div><div class="mv neg">${fmt(cgtLater)}</div><button class="mc-ask" onclick="askMetric('CGT if sold later','${fmt(cgtLater)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Net proceeds later</div><div class="mv neu">${fmt(netLater-cgtLater+totalCF)}</div><button class="mc-ask" onclick="askMetric('Net proceeds later','${fmt(netLater-cgtLater+totalCF)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Advantage of ${sellBetter?'selling now':'waiting'}</div><div class="mv ${sellBetter?'pos':'neg'}">${fmt(Math.abs(netWait))}</div><button class="mc-ask" onclick="askMetric('Advantage of ${sellBetter?"selling now":"waiting"}','${fmt(Math.abs(netWait))}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Annual cash flow</div><div class="mv ${annCF>=0?'pos':'neg'}">${fmt(annCF)}</div><button class="mc-ask" onclick="askMetric('Annual cash flow','${fmt(annCF)}')" title="Ask about this number">?</button></div>
+  </div>
+  ${esec('cgt-now','Pre-reform CGT (sell now)','50% discount on full gain — applies to assets held more than 12 months',
+    [['Net sale proceeds',fmt(netNow)],['Less cost base',fmt(cost)],['Gross capital gain',fmt(gainNow)],['50% CGT discount applied',fmt(gainNow*0.5)],['Tax at '+pct(mtr*100)+' marginal rate',fmt(cgtNow)]],'cgt-now-q','How is the 50% CGT discount calculated?')}
+  ${esec('cgt-later','Post-reform CGT (sell later)','Gain splits at 1 Jul 2027 — pre-reform uses 50% discount, post-reform uses inflation index',
+    [['Pre-reform gain (cost to 1 Jul 2027 value)',fmt(preGain)],['Pre-reform CGT (50% discount)',fmt(preCGT)],['Post-reform real gain (above inflation)',fmt(postGain)],['Post-reform CGT (higher of marginal or 30%)',fmt(postCGT)],['Total CGT if sold later',fmt(cgtLater)]],'cgt-later-q','Why might post-reform CGT be higher?')}
+  ${esec('cf-hold','Cash flow during holding period','Net return after interest, expenses and tax benefit',
+    [['Annual rent / income',fmt(inc)],['Less annual expenses',fmt(exp)],['Less annual interest',fmt(loan*rate/100)],['Net pre-tax cash flow',fmt(annCF)],['Negative gearing benefit (if applicable)',annCF<0?fmt(Math.abs(annCF)*mtr):'N/A — positively geared'],['Total net cash flow over hold period',fmt(totalCF)]],'cf-q','Is negative gearing still worth it post-Budget?')}
+  ${ns(['Talk to an accountant about the 1 Jul 2027 transition','Get an indicative valuation to lock in the pre-reform cost base','Model your cash flow needs against the tax saving','Review asset quality — is the growth assumption realistic?'])}
+  ${disc()}`;
+}
+
+function buildSellAfter() {
+  const cost=n(D.costBase),cur=n(D.currentValue),mtr=n(D.mtr)/100||0.47;
+  const gr=n(D.expectedGrowth)||4.5,yrTo=n(D.yearsToReform)||1,yrAft=n(D.yearsAfterReform)||3,sc=0.025;
+  const loan=n(D.loanBalance),inc=n(D.annualIncome),exp=n(D.annualExpenses)||8000,rate=n(D.interestRate)||6.2;
+  const val27=fv(cur,gr,yrTo),futVal=fv(val27,gr,yrAft),netFut=futVal*(1-sc);
+  const preGain=Math.max(0,val27-cost),preCGT=preGain*0.5*mtr;
+  const inflAdj=fv(val27,2.5,yrAft),postGain=Math.max(0,netFut-inflAdj),postCGT=Math.max(postGain*mtr,postGain*0.3);
+  const totalCGT=preCGT+postCGT,annCF=inc-exp-(loan*rate/100),totalCF=annCF*(yrTo+yrAft);
+  const netNow=(cur*(1-sc))-(Math.max(0,cur*(1-sc)-cost)*0.5*mtr);
+  return `<div class="rh"><div class="rt">Analysis: sell after 1 July 2027</div>
+    <span class="vpill ${netFut-totalCGT+totalCF>netNow?'vg':'va'}">${netFut-totalCGT+totalCF>netNow?'Holding past reform may be worthwhile':'Selling before reform may be better'}</span>
+    <h2>Selling after 1 July 2027 — understanding the new CGT rules</h2>
+    <p>Your gain splits at 1 July 2027. Pre-reform gain (${fmt(preGain)}) keeps the 50% discount. Post-reform portion is taxed on the real inflation-adjusted gain. Total estimated CGT: ${fmt(totalCGT)}.</p></div>
+  <div class="mg">
+    <div class="mc"><div class="ml">Est. value at 1 Jul 2027</div><div class="mv neu">${fmt(val27)}</div><button class="mc-ask" onclick="askMetric('Est. value at 1 Jul 2027','${fmt(val27)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Pre-reform gain</div><div class="mv neu">${fmt(preGain)}</div><button class="mc-ask" onclick="askMetric('Pre-reform gain','${fmt(preGain)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Pre-reform CGT</div><div class="mv neg">${fmt(preCGT)}</div><button class="mc-ask" onclick="askMetric('Pre-reform CGT','${fmt(preCGT)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Post-reform real gain</div><div class="mv neu">${fmt(postGain)}</div><button class="mc-ask" onclick="askMetric('Post-reform real gain','${fmt(postGain)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Post-reform CGT</div><div class="mv neg">${fmt(postCGT)}</div><button class="mc-ask" onclick="askMetric('Post-reform CGT','${fmt(postCGT)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Total CGT if sold later</div><div class="mv neg">${fmt(totalCGT)}</div><button class="mc-ask" onclick="askMetric('Total CGT if sold later','${fmt(totalCGT)}')" title="Ask about this number">?</button></div>
+  </div>
+  ${esec('reform-split','How the gain splits at 1 July 2027','The reform date divides two different tax treatments',
+    [['Cost base (original)',fmt(cost)],['Estimated value at 1 July 2027',fmt(val27)],['Pre-reform gain',fmt(preGain)],['50% discount applied',fmt(preGain*0.5)],['Pre-reform CGT',fmt(preCGT)],['---','---'],['Future sale value',fmt(futVal)],['Inflation-adjusted base at sale',fmt(inflAdj)],['Post-reform real gain',fmt(postGain)],['Post-reform CGT',fmt(postCGT)],['Total CGT',fmt(totalCGT)]],'reform-q','Why does the reform date split the gain?')}
+  ${esec('val-why','Why a 1 July 2027 valuation matters','Formal evidence of the pre-reform value protects your split',
+    [['Purpose','Establishes the value at the CGT reform date with formal evidence'],['Without valuation','ATO may determine the split using their own method — potentially less favourable'],['Formal valuation','Strongest evidence: registered valuer, effective date 1 July 2027'],['CoreLogic / automated estimate','Useful for planning; likely insufficient as primary ATO evidence for material amounts'],['Cost','Typically $600–$1,200 for residential property'],['Timing','Order in early to mid 2027; effective date must be 1 July 2027']],'val-q','Is a formal valuation legally required?')}
+  ${ns(['Begin planning for a 1 July 2027 valuation now','Confirm the holding period and gain calculation with your accountant','Model post-reform CGT impact with your financial adviser','Review if negative gearing still makes sense going forward'])}
+  ${disc()}`;
+}
+
+function buildHoldOrSell() {
+  const cost=n(D.costBase),cur=n(D.currentValue),mtr=n(D.mtr)/100||0.47;
+  const loan=n(D.loanBalance),inc=n(D.annualIncome),exp=n(D.annualExpenses)||8000,rate=n(D.interestRate)||6.2;
+  const gr=n(D.expectedGrowth)||4.5,yrs=n(D.yearsHorizon)||7,sc=0.025;
+  const yrTo=n(D.yearsToReform)||1,yrAft=n(D.yearsAfterReform)||3;
+  const netNow=cur*(1-sc),cgtNow=Math.max(0,netNow-cost)*0.5*mtr;
+  const futVal=fv(cur,gr,yrs),netFut=futVal*(1-sc);
+  const preGain=Math.max(0,fv(cur,gr,yrTo)-cost),preCGT=preGain*0.5*mtr;
+  const inflAdj=fv(fv(cur,gr,yrTo),2.5,yrAft),postGain=Math.max(0,netFut-inflAdj),postCGT=Math.max(postGain*mtr,postGain*0.3);
+  const cgtFut=preCGT+postCGT,annCF=inc-exp-(loan*rate/100),totalCF=annCF*yrs;
+  const netHold=netFut-cgtFut+totalCF,netSell=netNow-cgtNow,holdBetter=netHold>netSell;
+  const grossYield=cur>0?inc/cur*100:0;
+  return `<div class="rh"><div class="rt">Analysis: hold or sell</div>
+    <span class="vpill ${holdBetter?'vg':'va'}">${holdBetter?'Hold looks favourable':'Review the case for selling'}</span>
+    <h2>${holdBetter?'Holding appears ahead on current figures':'The case for selling deserves close examination'}</h2>
+    <p>Selling now nets ${fmt(netSell)} after CGT. Holding ${yrs} years nets approximately ${fmt(netHold)} — ${fmt(Math.abs(netHold-netSell))} ${holdBetter?'in favour of holding':'in favour of selling now'}. Gross yield: ${pct(grossYield)}.</p></div>
+  <div class="mg">
+    <div class="mc"><div class="ml">Net if sold now</div><div class="mv neu">${fmt(netSell)}</div><button class="mc-ask" onclick="askMetric('Net if sold now','${fmt(netSell)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">CGT now</div><div class="mv neg">${fmt(cgtNow)}</div><button class="mc-ask" onclick="askMetric('CGT now','${fmt(cgtNow)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Net if held ${yrs}yr</div><div class="mv neu">${fmt(netHold)}</div><button class="mc-ask" onclick="askMetric('Net if held ${yrs}yr','${fmt(netHold)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">CGT if held then sold</div><div class="mv neg">${fmt(cgtFut)}</div><button class="mc-ask" onclick="askMetric('CGT if held then sold','${fmt(cgtFut)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Annual cash flow</div><div class="mv ${annCF>=0?'pos':'neg'}">${fmt(annCF)}</div><button class="mc-ask" onclick="askMetric('Annual cash flow','${fmt(annCF)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Advantage of ${holdBetter?'holding':'selling'}</div><div class="mv ${holdBetter?'pos':'neg'}">${fmt(Math.abs(netHold-netSell))}</div><button class="mc-ask" onclick="askMetric('Advantage of ${holdBetter?"holding":"selling"}','${fmt(Math.abs(netHold-netSell))}')" title="Ask about this number">?</button></div>
+  </div>
+  ${esec('hold-recon','Full hold vs sell reconciliation','Every dollar across both paths',
+    [['Net proceeds if sold now',fmt(netNow)],['CGT if sold now',fmt(cgtNow)],['After-tax if sold now',fmt(netSell)],['---','---'],['Future value ('+yrs+' years)',fmt(futVal)],['Net sale proceeds (future)',fmt(netFut)],['Total CGT if held then sold',fmt(cgtFut)],['Total net cash flow over '+yrs+' years',fmt(totalCF)],['After-tax if held and sold later',fmt(netHold)],['---','---'],['Advantage of '+(holdBetter?'holding':'selling now'),fmt(Math.abs(netHold-netSell))]],'hold-q','Walk me through the full calculation')}
+  ${ns(['Consider asset quality — is the growth assumption realistic?','Check cash flow tolerance if negatively geared','Confirm grandfathering status with your accountant','Model alternative uses of the sale proceeds'])}
+  ${disc()}`;
+}
+
+function buildPPORConvert() {
+  const curVal=n(D.currentValue),curCost=n(D.costBase)||curVal*0.6,curLoan=n(D.loanBalance);
+  const newPrice=n(D.newPropPrice),newLoan=n(D.newPropLoan)||newPrice*0.8;
+  const mtr=n(D.mtr)/100||0.47,rate=n(D.interestRate)||6.2,gr=n(D.expectedGrowth)||4.5,yrs=n(D.yearsHorizon)||7;
+  const pRent=n(D.pporConvertRent)||curVal*0.035,pExp=n(D.pporConvertExp)||10000;
+  const nRent=n(D.newPropRent)||newPrice*0.04,nExp=n(D.newPropExpenses)||8000;
+  const sc=0.025,heldYrs=n(D.heldYears)||5;
+  const futCur=fv(curVal,gr,yrs),futNew=fv(newPrice,gr,yrs);
+  const A_CF=nRent-nExp-(newLoan*rate/100),A_netCF=A_CF+(A_CF<0?Math.abs(A_CF)*mtr:0);
+  const A_future=futNew*(1-sc),A_inflAdj=fv(newPrice,2.5,yrs),A_postGain=Math.max(0,A_future-A_inflAdj);
+  const A_cgt=Math.max(A_postGain*mtr,A_postGain*0.3);
+  const A_wealth=futCur+(A_future-A_cgt)+(A_netCF*yrs)-curLoan;
+  const B_CF=pRent-pExp-(curLoan*rate/100),B_netCF=B_CF+(B_CF<0?Math.abs(B_CF)*mtr:0);
+  const B_prop=yrs/(yrs+heldYrs),B_gain=Math.max(0,futCur*(1-sc)-curCost);
+  const B_tax=B_gain*B_prop,B_cgt=B_tax*0.5*mtr;
+  const B_pporNet=futCur*(1-sc)-B_cgt,B_wealth=B_pporNet+futNew-newLoan+(B_netCF*yrs);
+  const aPref=A_wealth>=B_wealth;
+  return `<div class="rh"><div class="rt">Analysis: PPOR strategy comparison</div>
+    <span class="vpill ${aPref?'vg':'vi'}">${aPref?'Option A: Keep PPOR + buy investment':'Option B: Convert PPOR + buy new home'}</span>
+    <h2>${aPref?'Keeping your home as PPOR and buying a separate investment looks stronger':'Converting your home to an investment and buying a new PPOR looks stronger'}</h2>
+    <p>Option A estimated wealth: ${fmt(A_wealth)}. Option B: ${fmt(B_wealth)}. Difference: ${fmt(Math.abs(A_wealth-B_wealth))} in favour of Option ${aPref?'A':'B'}. The biggest variable: CGT on PPOR conversion is ${fmt(B_cgt)} vs $0 under Option A.</p></div>
+  <div class="sc-grid">
+    <div class="sc ${aPref?'best':''}">
+      ${aPref?`<div style="font-size:10px;font-weight:500;background:var(--greenl);color:var(--green);padding:3px 9px;border-radius:5px;display:inline-block;margin-bottom:6px">Recommended</div>`:''}
+      <div class="stag">Option A</div><h3>Keep PPOR + buy investment</h3>
+      <div class="sr"><span>CGT on current home</span><span style="color:var(--green);font-weight:500">$0 (fully exempt)</span></div>
+      <div class="sr"><span>Annual investment cash flow</span><span style="color:${A_netCF>=0?'var(--green)':'var(--red2)'};font-weight:500">${fmt(A_netCF)}</span></div>
+      <div class="sr"><span>Estimated total wealth</span><span style="font-weight:500">${fmt(A_wealth)}</span></div>
+      <div class="snote" style="background:var(--greenl);color:var(--green)">PPOR fully protected. Investment CGT applies only from purchase date.</div>
+    </div>
+    <div class="sc ${!aPref?'best':''}">
+      ${!aPref?`<div style="font-size:10px;font-weight:500;background:var(--info-bg);color:var(--info-txt);padding:3px 9px;border-radius:5px;display:inline-block;margin-bottom:6px">Recommended</div>`:''}
+      <div class="stag">Option B</div><h3>Convert PPOR + buy new home</h3>
+      <div class="sr"><span>CGT on current home (${Math.round(B_prop*100)}% inv. period)</span><span style="color:var(--red2);font-weight:500">${fmt(B_cgt)}</span></div>
+      <div class="sr"><span>Annual converted-home cash flow</span><span style="color:${B_netCF>=0?'var(--green)':'var(--red2)'};font-weight:500">${fmt(B_netCF)}</span></div>
+      <div class="sr"><span>Estimated total wealth</span><span style="font-weight:500">${fmt(B_wealth)}</span></div>
+      <div class="snote" style="background:var(--info-bg);color:var(--info-txt)">Partial CGT based on investment-period proportion. New home becomes your PPOR.</div>
+    </div>
+  </div>
+  ${esec('ppor-cgt','The PPOR CGT comparison — critical difference','This single variable most often determines which option wins',
+    [['Option A — home stays as PPOR','$0 CGT (fully exempt)'],['Option B — home converted to investment',''],['Total ownership period',heldYrs+' yrs PPOR + '+yrs+' yrs investment = '+(heldYrs+yrs)+' total'],['Investment period proportion',pct(B_prop*100)+' of total'],['Total gain if sold after '+yrs+' years',fmt(B_gain)],['Taxable portion (investment period only)',fmt(B_tax)],['After 50% discount',fmt(B_tax*0.5)],['CGT liability on conversion',fmt(B_cgt)],['Saving vs Option A',fmt(B_cgt)]],'ppor-q','How does the partial PPOR exemption work?')}
+  ${esec('six-yr','The 6-year absence rule','May allow you to treat the converted home as PPOR for CGT purposes',
+    [['What it says','If you move out and rent your home, you can still treat it as your PPOR for CGT for up to 6 years'],['Key condition','You must not nominate another property as your PPOR during this period'],['Effect if met','Sale within 6 years of moving out may still be fully CGT exempt'],['After 6 years','Time-apportionment applies to any gain beyond the 6-year period'],['Budget reform impact','Post-reform CGT still applies to any investment-period gain after 1 July 2027'],['Action required','Confirm applicability with your accountant — individual circumstances vary significantly']],'6yr-q','Does the 6-year rule apply to my situation?')}
+  ${ns(['Confirm 6-year rule eligibility with your accountant','Get a rental appraisal for your current home','Compare borrowing capacity for both options with a broker','Model stamp duty costs on buying a new PPOR'])}
+  ${disc()}`;
+}
+
+function buildBuyEstablished() {
+  const price=n(D.newPropPrice),loan=n(D.newPropLoan)||price*0.8,mtr=n(D.mtr)/100||0.47;
+  const rent=n(D.newPropRent)||price*0.04,exp=n(D.newPropExpenses)||8000,rate=n(D.interestRate)||6.2;
+  const gr=n(D.expectedGrowth)||4.5,yrs=n(D.yearsHorizon)||7,sc=0.025,sd=0.04;
+  const annCF=rent-exp-(loan*rate/100),netCF=annCF+(annCF<0?Math.abs(annCF)*mtr:0);
+  const futVal=fv(price,gr,yrs),netFut=futVal*(1-sc);
+  const inflAdj=fv(price,2.5,yrs),postGain=Math.max(0,netFut-inflAdj),cgt=Math.max(postGain*mtr,postGain*0.3);
+  const grossYield=price>0?rent/price*100:0,totalReturn=price>0?((netFut-cgt+netCF*yrs-price)/price)*100:0;
+  return `<div class="rh"><div class="rt">Analysis: buy established property</div>
+    <span class="vpill ${grossYield>3&&totalReturn>30?'vg':'va'}">${grossYield>3&&totalReturn>30?'Investment case looks viable':'Review carefully before committing'}</span>
+    <h2>${grossYield>3&&totalReturn>30?'This established property stacks up under the Budget rules':'Thin margins warrant careful consideration'}</h2>
+    <p>Gross yield: ${pct(grossYield)}. Net yield after tax benefit: ${pct(price>0?netCF/price*100:0)}. Post-Budget CGT applies from 1 July 2027 — inflation-indexed rather than the 50% discount for this new purchase.</p></div>
+  <div class="mg">
+    <div class="mc"><div class="ml">Purchase price</div><div class="mv neu">${fmt(price)}</div><button class="mc-ask" onclick="askMetric('Purchase price','${fmt(price)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Gross rental yield</div><div class="mv neu">${pct(grossYield)}</div><button class="mc-ask" onclick="askMetric('Gross rental yield','${pct(grossYield)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Annual net cash flow</div><div class="mv ${netCF>=0?'pos':'neg'}">${fmt(netCF)}</div><button class="mc-ask" onclick="askMetric('Annual net cash flow','${fmt(netCF)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Future value (${yrs}yr)</div><div class="mv neu">${fmt(futVal)}</div><button class="mc-ask" onclick="askMetric('Future value (${yrs}yr)','${fmt(futVal)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Estimated CGT on sale</div><div class="mv neg">${fmt(cgt)}</div><button class="mc-ask" onclick="askMetric('Estimated CGT on sale','${fmt(cgt)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Total estimated return</div><div class="mv ${totalReturn>30?'pos':'neu'}">${pct(totalReturn)}</div><button class="mc-ask" onclick="askMetric('Total estimated return','${pct(totalReturn)}')" title="Ask about this number">?</button></div>
+  </div>
+  ${esec('est-cgt','Post-Budget CGT on this purchase','New rules apply from 1 Jul 2027 — no 50% discount for new purchases of established property',
+    [['Old rule (sold before reform)','50% discount on full gain'],['New rule (post reform)','Tax on real gain above inflation only — no flat 50% discount'],['Grandfathering','Not applicable — this is a new purchase after Budget night'],['When new rule may be better','High inflation periods erode more of the nominal gain'],['When old rule was better','Low inflation, high capital growth — 50% discount was more valuable']],'est-cgt-q','Is the new CGT rule better or worse for me?')}
+  ${esec('est-cf','Cash flow analysis','Rental income vs all holding costs',
+    [['Annual rent',fmt(rent)],['Less annual expenses',fmt(exp)],['Less interest ('+fmt(loan)+' at '+pct(rate)+')',fmt(loan*rate/100)],['Net pre-tax cash flow',fmt(annCF)],['Negative gearing tax benefit',annCF<0?fmt(Math.abs(annCF)*mtr):'N/A — positively geared'],['Annual net cash flow (after tax)',fmt(netCF)],['Stamp duty cost upfront (est.)',fmt(price*sd)]],'est-cf-q','How does negative gearing work after the Budget?')}
+  ${ns(['Compare with a new build in the same area','Get pre-approval from a broker','Confirm grandfathering does not apply to new purchases','Model different growth and yield scenarios before committing'])}
+  ${disc()}`;
+}
+
+function buildBuyNewBuild() {
+  const price=n(D.newPropPrice),loan=n(D.newPropLoan)||price*0.8,mtr=n(D.mtr)/100||0.47;
+  const rent=n(D.newPropRent)||price*0.037,exp=n(D.newPropExpenses)||7000,rate=n(D.interestRate)||6.2;
+  const gr=n(D.expectedGrowth)||4.5,yrs=n(D.yearsHorizon)||7,sc=0.025;
+  const estP=price*0.9,estR=rent*0.98;
+  const newCF=rent-exp-(loan*rate/100),newNetCF=newCF+(newCF<0?Math.abs(newCF)*mtr:0);
+  const estCF=estR-exp*0.95-(loan*0.9*rate/100),estNetCF=estCF+(estCF<0?Math.abs(estCF)*mtr:0);
+  const newFut=fv(price,gr,yrs),estFut=fv(estP,gr,yrs);
+  const newInflAdj=fv(price,2.5,yrs),estInflAdj=fv(estP,2.5,yrs);
+  const newPostGain=Math.max(0,newFut*(1-sc)-newInflAdj),estPostGain=Math.max(0,estFut*(1-sc)-estInflAdj);
+  const newCGT=newPostGain*0.5*mtr,estCGT=Math.max(estPostGain*mtr,estPostGain*0.3);
+  return `<div class="rh"><div class="rt">Analysis: new build vs established</div>
+    <span class="vpill vi">Scenario comparison</span>
+    <h2>New build vs established — key differences under the Budget rules</h2>
+    <p>New residential builds may retain the 50% CGT discount post-reform, while established properties purchased after Budget night do not. New builds typically have a higher price, lower initial yield, but better depreciation and potentially lower CGT on sale.</p></div>
+  <div class="sc-grid">
+    <div class="sc"><div class="stag">New build</div><h3>New residential build</h3>
+      <div class="sr"><span>Purchase price</span><span>${fmt(price)}</span></div>
+      <div class="sr"><span>Annual net cash flow</span><span style="color:${newNetCF>=0?'var(--green)':'var(--red2)'}">${fmt(newNetCF)}</span></div>
+      <div class="sr"><span>Future value (${yrs}yr)</span><span>${fmt(newFut)}</span></div>
+      <div class="sr"><span>Est. CGT on sale</span><span style="color:var(--red2)">${fmt(newCGT)}</span></div>
+      <div class="snote" style="background:var(--info-bg);color:var(--info-txt)">May retain 50% CGT discount post-reform. Better depreciation benefits.</div>
+    </div>
+    <div class="sc"><div class="stag">Established (est. comparison)</div><h3>Established investment</h3>
+      <div class="sr"><span>Est. purchase price</span><span>${fmt(estP)}</span></div>
+      <div class="sr"><span>Annual net cash flow</span><span style="color:${estNetCF>=0?'var(--green)':'var(--red2)'}">${fmt(estNetCF)}</span></div>
+      <div class="sr"><span>Future value (${yrs}yr)</span><span>${fmt(estFut)}</span></div>
+      <div class="sr"><span>Est. CGT on sale</span><span style="color:var(--red2)">${fmt(estCGT)}</span></div>
+      <div class="snote" style="background:var(--warn-bg);color:var(--warn-txt)">Post-reform CGT in full (no 50% discount for new purchases). Immediate rental income — no construction wait.</div>
+    </div>
+  </div>
+  ${esec('nb-cgt','Why new builds get better CGT treatment','Budget policy specifically designed to incentivise new housing supply',
+    [['Policy intent','Encourage construction — new stock preferred over investors competing for existing homes'],['New build treatment','May retain 50% CGT discount post-reform'],['Established (new purchase)','50% discount replaced by inflation-indexing from 1 Jul 2027'],['Grandfathered established','Already held before Budget night — keeps 50% discount'],['State stamp duty','Some states offer exemptions or concessions for new builds'],['Depreciation','New builds have higher allowable depreciation — improves cash flow']],'nb-q','How does the new build CGT concession work exactly?')}
+  ${ns(['Confirm new build CGT treatment with your accountant','Check state-specific stamp duty concessions for new builds','Compare rental yield assumptions — new builds often start lower','Get a quantity surveyor report to maximise depreciation claims'])}
+  ${disc()}`;
+}
+
+function buildBuyOrWait() {
+  const price=n(D.newPropPrice)||800000,mtr=n(D.mtr)/100||0.47;
+  const rent=n(D.newPropRent)||price*0.04,rate=n(D.interestRate)||6.2,gr=n(D.expectedGrowth)||4.5;
+  const loan=price*0.8,exp=n(D.newPropExpenses)||8000,waitYrs=2;
+  const annCF=rent-exp-(loan*rate/100),netCF=annCF+(annCF<0?Math.abs(annCF)*mtr:0);
+  const costOfWaiting=fv(price,gr,waitYrs)-price,rentForgone=netCF*waitYrs;
+  return `<div class="rh"><div class="rt">Analysis: buy now or wait</div>
+    <span class="vpill ${costOfWaiting>50000?'va':'vg'}">${costOfWaiting>50000?'Waiting may be costly':'Timing depends on your situation'}</span>
+    <h2>Buy now or wait — the key trade-offs</h2>
+    <p>At ${pct(gr)} annual growth, waiting 2 years means paying ${fmt(fv(price,gr,2))} instead of ${fmt(price)} — a ${fmt(costOfWaiting)} price increase. The CGT reform date of 1 July 2027 also affects which tax rules apply to your purchase.</p></div>
+  <div class="mg">
+    <div class="mc"><div class="ml">Price today</div><div class="mv neu">${fmt(price)}</div><button class="mc-ask" onclick="askMetric('Price today','${fmt(price)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Est. price in 2 years</div><div class="mv neg">${fmt(fv(price,gr,2))}</div><button class="mc-ask" onclick="askMetric('Est. price in 2 years','${fmt(fv(price,gr,2))}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Extra cost of waiting 2yr</div><div class="mv neg">${fmt(costOfWaiting)}</div><button class="mc-ask" onclick="askMetric('Extra cost of waiting 2yr','${fmt(costOfWaiting)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Annual net cash flow</div><div class="mv ${netCF>=0?'pos':'neg'}">${fmt(netCF)}</div><button class="mc-ask" onclick="askMetric('Annual net cash flow','${fmt(netCF)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Cash flow foregone (2yr wait)</div><div class="mv neg">${fmt(rentForgone)}</div><button class="mc-ask" onclick="askMetric('Cash flow foregone (2yr wait)','${fmt(rentForgone)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">CGT reform date</div><div class="mv neu">1 Jul 2027</div><button class="mc-ask" onclick="askMetric('CGT reform date','1 Jul 2027')" title="Ask about this number">?</button></div>
+  </div>
+  ${esec('wait-cgt','CGT timing and the buy-now decision','When you buy affects which CGT rules apply to this purchase',
+    [['Buy before 1 Jul 2027','Post-reform CGT rules apply from that date — shorter period of exposure'],['Buy after 1 Jul 2027','Post-reform rules apply from day one of ownership'],['New builds','May retain 50% discount regardless of purchase timing'],['Grandfathering','Only for assets already held before Budget night — not future purchases'],['Strategy','Buying established before 1 Jul 2027 means less of your total hold period is subject to post-reform rules']],'wait-q','Does it matter if I buy before 1 July 2027?')}
+  ${ns(['Get mortgage pre-approval now — valid 3-6 months while you decide','Monitor RBA and market conditions closely','Consider whether a new build offers better CGT treatment','Review your deposit vs expected price growth over the wait period'])}
+  ${disc()}`;
+}
+
+function buildFirstHome() {
+  const price=n(D.newPropPrice)||700000,mtr=n(D.mtr)/100||0.32,rate=n(D.interestRate)||6.2;
+  const loan=price*0.9,monthly=(loan*rate/100/12)*Math.pow(1+rate/100/12,300)/(Math.pow(1+rate/100/12,300)-1);
+  const gr=n(D.expectedGrowth)||4.5;
+  return `<div class="rh"><div class="rt">Analysis: first home buyer</div>
+    <span class="vpill vi">First home buyer guide</span>
+    <h2>First home buyer — what the Budget means for you</h2>
+    <p>As long as you live in the home, it is fully CGT-exempt as your main residence. The Budget CGT changes primarily target investors — but they shape the market you are buying into and may affect prices and competition from investors.</p></div>
+  <div class="mg">
+    <div class="mc"><div class="ml">Purchase price</div><div class="mv neu">${fmt(price)}</div><button class="mc-ask" onclick="askMetric('Purchase price','${fmt(price)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Est. monthly repayment</div><div class="mv neu">${fmt(monthly)}</div><button class="mc-ask" onclick="askMetric('Est. monthly repayment','${fmt(monthly)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Stamp duty (est.)</div><div class="mv neg">${fmt(price*0.04)}</div><button class="mc-ask" onclick="askMetric('Stamp duty (est.)','${fmt(price*0.04)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Value in 10 years</div><div class="mv pos">${fmt(fv(price,gr,10))}</div><button class="mc-ask" onclick="askMetric('Value in 10 years','${fmt(fv(price,gr,10))}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">CGT if you sell as PPOR</div><div class="mv pos">$0</div><button class="mc-ask" onclick="askMetric('CGT if you sell as PPOR','$0')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">FHO Grant</div><div class="mv neu">State dependent</div><button class="mc-ask" onclick="askMetric('FHO Grant','State dependent')" title="Ask about this number">?</button></div>
+  </div>
+  ${esec('fhb-budget','Budget changes relevant to first home buyers','Several 2026 Budget measures affect housing affordability',
+    [['Your PPOR exemption','Fully CGT exempt — Budget changes do not affect this at all'],['First Home Guarantee','Government guarantees up to 15% of deposit — check current eligibility'],['Help to Buy scheme','Shared equity scheme — check current status and eligibility criteria'],['Stamp duty concessions','Check your state for first home buyer exemptions and concessions'],['Investor competition','New CGT rules may reduce investor competition for established properties'],['New build market','Budget encourages new supply — opportunities may exist in the new build market']],'fhb-q','What grants and schemes are available to me?')}
+  ${ns(['Check state-specific first home buyer grants and stamp duty concessions','Get a mortgage pre-approval to confirm your budget','Consider whether a new build qualifies for additional concessions','Speak to a conveyancer about all upfront costs before committing'])}
+  ${disc()}`;
+}
+
+function buildValuation() {
+  const cur=n(D.currentValue),cost=n(D.costBase),heldYrs=n(D.heldYears)||5,mtr=n(D.mtr)/100||0.47,gr=n(D.expectedGrowth)||4.5;
+  const val27=D.transitionValue?n(D.transitionValue):fv(cur,gr,1);
+  const preGain=Math.max(0,val27-cost),preCGT=preGain*0.5*mtr,material=preGain>50000;
+  return `<div class="rh"><div class="rt">Analysis: valuation decision</div>
+    <span class="vpill ${material?'va':'vg'}">${material?'Formal valuation strongly recommended':'Formal valuation worth getting'}</span>
+    <h2>${material?'A formal 1 July 2027 valuation is strongly recommended for your situation':'Getting a valuation is sensible — the pre-reform gain is meaningful'}</h2>
+    <p>The 1 July 2027 valuation splits your gain between the pre-reform period (50% CGT discount) and the post-reform period (inflation-indexed). Your estimated pre-reform gain is ${fmt(preGain)}, with a CGT value of ${fmt(preCGT)}. Protecting this with a formal valuation is ${material?'strongly advisable':'sensible'} at this level.</p></div>
+  <div class="mg">
+    <div class="mc"><div class="ml">Current value</div><div class="mv neu">${fmt(cur)}</div><button class="mc-ask" onclick="askMetric('Current value','${fmt(cur)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Est. value at 1 Jul 2027</div><div class="mv neu">${fmt(val27)}</div><button class="mc-ask" onclick="askMetric('Est. value at 1 Jul 2027','${fmt(val27)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Pre-reform gain</div><div class="mv neu">${fmt(preGain)}</div><button class="mc-ask" onclick="askMetric('Pre-reform gain','${fmt(preGain)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">CGT value protected</div><div class="mv ${material?'neg':'neu'}">${fmt(preCGT)}</div><button class="mc-ask" onclick="askMetric('CGT value protected','${fmt(preCGT)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Valuation cost (est.)</div><div class="mv neg">$600–$1,200</div><button class="mc-ask" onclick="askMetric('Valuation cost (est.)','$600–$1,200')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Cost/benefit verdict</div><div class="mv pos">${material?'Highly worthwhile':'Worth doing'}</div><button class="mc-ask" onclick="askMetric('Cost/benefit verdict','${material?"Highly worthwhile":"Worth doing"}')" title="Ask about this number">?</button></div>
+  </div>
+  ${esec('val-how','What a 1 July 2027 valuation does and why it matters','Formal evidence of the pre-reform value — the strongest protection for your gain split',
+    [['Purpose','Formally establishes the property value on 1 July 2027 — the CGT reform date'],['Without a formal valuation','ATO may apply their own methodology to determine the split, which may be less favourable'],['With a formal valuation','Clear, independent evidence that supports your pre-reform gain calculation'],['Who can provide it','A registered property valuer — must have effective date of 1 July 2027'],['Is CoreLogic enough?','Automated estimates are good for planning. For material tax amounts, a formal valuation is safer.'],['Cost','Typically $600–$1,200 for residential; more for commercial or complex properties'],['Record keeping','Keep the valuation report, your instructions, and payment receipts permanently']],'val-how-q','What if I miss the 1 July 2027 valuation date?')}
+  <div class="slbl" style="margin-top:1.25rem">Action timeline</div>
+  <div class="tl">${[
+    ['Now — 2026','Get an indicative automated estimate. Review the numbers with your accountant.'],
+    ['Early 2027','Contact a registered valuer and book ahead — demand will be very high near the deadline.'],
+    ['May–June 2027','Commission the formal valuation with an effective date of 1 July 2027.'],
+    ['1 July 2027','Reform date. Your valuation report locks in the pre-reform gain split.'],
+    ['Post July 2027','File the report safely. Give a copy to your accountant when you eventually sell.']
+  ].map(([date,desc],i,arr) => `<div class="tli"><div><div class="tld"></div>${i<arr.length-1?'<div class="tll"></div>':''}</div><div class="tlc"><div class="tldate">${date}</div><div class="tldesc">${desc}</div></div></div>`).join('')}</div>
+  ${disc()}`;
+}
+
+function buildRefinance() {
+  const cur=n(D.currentValue),loan=n(D.loanBalance),mtr=n(D.mtr)/100||0.47;
+  const rate=n(D.interestRate)||6.2,inc=n(D.annualIncome),exp=n(D.annualExpenses)||8000;
+  const annCF=inc-exp-(loan*rate/100),taxBen=annCF<0?Math.abs(annCF)*mtr:0,lvr=cur>0?loan/cur*100:0;
+  return `<div class="rh"><div class="rt">Analysis: refinance and restructure</div>
+    <span class="vpill vi">Scenario analysis</span>
+    <h2>Refinance and restructure — what the Budget means for your loan and structure</h2>
+    <p>Current LVR: ${pct(lvr)}. Net annual cash flow after tax benefit: ${fmt(annCF+taxBen)}. A 1% rate reduction would save ${fmt(loan*0.01)} per year. The Budget CGT changes affect the investment case but not mortgage interest deductibility directly.</p></div>
+  <div class="mg">
+    <div class="mc"><div class="ml">Current LVR</div><div class="mv neu">${pct(lvr)}</div><button class="mc-ask" onclick="askMetric('Current LVR','${pct(lvr)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Annual interest cost</div><div class="mv neg">${fmt(loan*rate/100)}</div><button class="mc-ask" onclick="askMetric('Annual interest cost','${fmt(loan*rate/100)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Net cash flow (after tax benefit)</div><div class="mv ${annCF+taxBen>=0?'pos':'neg'}">${fmt(annCF+taxBen)}</div><button class="mc-ask" onclick="askMetric('Net cash flow (after tax benefit)','${fmt(annCF+taxBen)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Saving from 1% rate cut</div><div class="mv pos">${fmt(loan*0.01)}</div><button class="mc-ask" onclick="askMetric('Saving from 1% rate cut','${fmt(loan*0.01)}')" title="Ask about this number">?</button></div>
+  </div>
+  ${esec('refi-detail','Key refinance and restructure considerations','Questions to work through with your broker and accountant',
+    [['Interest only vs P&I','IO preserves cash flow and deductibility on investment; P&I on PPOR accelerates equity build'],['Debt recycling','Convert non-deductible PPOR debt to deductible investment debt — powerful strategy, confirm with accountant'],['Ownership structure','Individual or trust can access 50% CGT discount; companies cannot — structure matters for long-term CGT'],['Trust restructure cost','Transferring to a trust typically triggers stamp duty and a CGT event — model this carefully before acting'],['Rate comparison','Worth refinancing if you can save 0.3%+ — covers costs within about 12 months on a $600k loan'],['CGT reform','Post-reform CGT applies regardless of ownership structure; the 50% discount availability varies by entity']],'refi-q','Should I use a trust or company for my investment property?')}
+  ${ns(['Get broker quotes — compare at least 3 lenders','Confirm with accountant before any ownership structure change','Model the debt recycling strategy if you have a PPOR loan','Review IO period expiry and plan transition well ahead of time'])}
+  ${disc()}`;
+}
+
+function buildTrustStructure() {
+  const cur=n(D.currentValue),mtr=n(D.mtr)/100||0.47,cost=n(D.costBase);
+  const gain=Math.max(0,cur-cost);
+  const cgtInd=gain*0.5*mtr,cgtCo=gain*0.3,cgtTrust=gain*0.5*mtr;
+  return `<div class="rh"><div class="rt">Analysis: trust and ownership structure</div>
+    <span class="vpill vp">Structure review</span>
+    <h2>Reviewing your trust or ownership structure in light of the CGT changes</h2>
+    <p>The Budget CGT changes affect how gains are taxed, but your ownership structure determines who pays and at what rate. Restructuring can trigger its own CGT and stamp duty event — timing and cost need careful modelling before you act.</p></div>
+  <div class="mg">
+    <div class="mc"><div class="ml">Unrealised gain</div><div class="mv neu">${fmt(gain)}</div><button class="mc-ask" onclick="askMetric('Unrealised gain','${fmt(gain)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">CGT — individual (50% disc.)</div><div class="mv neg">${fmt(cgtInd)}</div><button class="mc-ask" onclick="askMetric('CGT — individual (50% disc.)','${fmt(cgtInd)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">CGT — company (30% flat)</div><div class="mv neg">${fmt(cgtCo)}</div><button class="mc-ask" onclick="askMetric('CGT — company (30% flat)','${fmt(cgtCo)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">CGT — discretionary trust</div><div class="mv neg">${fmt(cgtTrust)}</div><button class="mc-ask" onclick="askMetric('CGT — discretionary trust','${fmt(cgtTrust)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Generally lower CGT</div><div class="mv neu">${cgtInd<=cgtCo?'Individual or trust':'Company (lower rate)'}</div></div>
+  </div>
+  ${esec('trust-cgt','CGT rates by ownership structure','The discount and effective rate differ significantly between structures',
+    [['Individual (held >12 months)','50% CGT discount — best outcome in most scenarios'],['Discretionary trust','Can distribute gains to individual beneficiaries and access the 50% discount'],['Unit trust','50% discount if gains distributed to individual unitholders'],['Company','30% flat rate, no 50% discount — often worse for investment property'],['Post-reform (all structures)','Inflation-indexed CGT applies; 50% discount availability still varies by entity type'],['Restructure cost','Stamp duty plus potential CGT event on any transfer — must be modelled before acting']],'trust-q','Is a discretionary trust better than holding in my own name?')}
+  ${ns(['Get a full trust deed review from your solicitor','Model the stamp duty and CGT cost of any proposed restructure','Confirm income-splitting strategy with your accountant','Do not restructure without specialist professional advice — mistakes are difficult and costly to reverse'])}
+  ${disc()}`;
+}
+
+function buildBusinessSale() {
+  const cost=n(D.costBase),cur=n(D.currentValue),mtr=n(D.mtr)/100||0.47;
+  const gain=Math.max(0,cur-cost),cgtStd=gain*0.5*mtr,cgtRetire=Math.max(0,gain-500000)*mtr,retireBetter=cgtRetire<cgtStd;
+  return `<div class="rh"><div class="rt">Analysis: business sale and succession</div>
+    <span class="vpill vp">Business exit planning</span>
+    <h2>Business sale and succession — concessions and the Budget CGT changes</h2>
+    <p>Business owners can access significant small business CGT concessions that can eliminate or dramatically reduce CGT on a sale. The 2026 Budget changes affect post-reform gains, but the small business concessions survive and remain highly valuable.</p></div>
+  <div class="mg">
+    <div class="mc"><div class="ml">Capital gain (est.)</div><div class="mv neu">${fmt(gain)}</div><button class="mc-ask" onclick="askMetric('Capital gain (est.)','${fmt(gain)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">CGT — standard (50% disc.)</div><div class="mv neg">${fmt(cgtStd)}</div><button class="mc-ask" onclick="askMetric('CGT — standard (50% disc.)','${fmt(cgtStd)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">CGT — 15-year exemption</div><div class="mv pos">$0</div><button class="mc-ask" onclick="askMetric('CGT — 15-year exemption','$0')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">CGT — retirement exemption</div><div class="mv ${retireBetter?'pos':'neu'}">${fmt(cgtRetire)}${retireBetter?'':' ⚠ standard may be better'}</div><button class="mc-ask" onclick="askMetric('CGT — retirement exemption','${fmt(cgtRetire)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Max small biz discount</div><div class="mv pos">Up to 75% reduction</div><button class="mc-ask" onclick="askMetric('Max small biz discount','Up to 75% reduction')" title="Ask about this number">?</button></div>
+  </div>
+  ${esec('biz-conc','Small business CGT concessions — four major options','Each concession has eligibility conditions; specialist advice is essential',
+    [['15-year exemption','Full CGT exemption if asset held 15+ years, owner aged 55+ and retiring. Subject to turnover/asset tests.'],['Retirement exemption','Up to $500,000 lifetime CGT exemption if proceeds contributed to super (if under 55).'],['50% active asset reduction','Additional 50% reduction after the 50% CGT discount — effective 75% reduction on eligible gains.'],['Rollover relief','Defer CGT if proceeds reinvested in another active business asset within 2 years.'],['Eligibility tests','Aggregated annual turnover under $2m, OR net assets under $6m (excluding super and PPOR).'],['Post-reform impact','Concessions survive the Budget changes. 50% discount still applies to pre-reform gains on small business assets.']],'biz-q','Do I qualify for the 15-year exemption?')}
+  ${ns(['Engage a specialist business and tax adviser as soon as possible','Assess eligibility for all four small business CGT concessions before setting a sale price','Consider timing: selling before 1 July 2027 protects more of your gain under pre-reform rules','If you qualify for the 15-year exemption, timing relative to the reform date becomes less critical'])}
+  ${disc()}`;
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PERSISTENT AI ADVISER
+// ═══════════════════════════════════════════════════════════════════════════
+
+let advHist = [];
+let advTel = null;
+let calcContext = '';   // filled when results are built
+
+// Build a rich context string from all collected data + calculations
+function buildAdviserContext() {
+  const sc = D.scenarioType || 'unknown';
+  const dataStr = Object.entries(D).filter(([,v]) => v !== null && v !== '').map(([k,v]) => `${k}: ${v}`).join('\n');
+
+  // Run the numbers again for context
+  let calcStr = '';
+  try {
+    const cost=n(D.costBase),cur=n(D.currentValue),mtr=n(D.mtr)/100||0.47;
+    const loan=n(D.loanBalance),inc=n(D.annualIncome),exp=n(D.annualExpenses)||8000,rate=n(D.interestRate)||6.2;
+    const gr=n(D.expectedGrowth)||4.5,yrs=n(D.yearsHorizon)||7,sc2=0.025;
+    const yrTo=n(D.yearsToReform)||1,yrAft=n(D.yearsAfterReform)||3;
+    const newPrice=n(D.newPropPrice),newLoan=n(D.newPropLoan)||newPrice*0.8;
+    const newRent=n(D.newPropRent),newExp=n(D.newPropExpenses)||8000;
+    const heldYrs=n(D.heldYears)||5;
+
+    if(cur > 0 && cost > 0) {
+      const netNow=cur*(1-sc2),gainNow=Math.max(0,netNow-cost),cgtNow=gainNow*0.5*mtr;
+      const futVal=fv(cur,gr,yrTo+yrAft),netLater=futVal*(1-sc2);
+      const val27=fv(cur,gr,yrTo),preGain=Math.max(0,val27-cost),preCGT=preGain*0.5*mtr;
+      const inflAdj=fv(val27,2.5,yrAft),postGain=Math.max(0,netLater-inflAdj),postCGT=Math.max(postGain*mtr,postGain*0.3);
+      const cgtLater=preCGT+postCGT,annCF=inc-exp-(loan*rate/100),totalCF=annCF*(yrTo+yrAft);
+      const netWait=(netLater-cgtLater+totalCF)-(netNow-cgtNow);
+      calcStr = `
+CALCULATED FIGURES:
+- Net sale proceeds if sold now: ${fmt(netNow)}
+- Total capital gain if sold now: ${fmt(gainNow)}
+- CGT if sold now (50% discount, ${Math.round(mtr*100)}% MTR): ${fmt(cgtNow)}
+- After-tax net if sold now: ${fmt(netNow-cgtNow)}
+- Estimated value at 1 July 2027: ${fmt(val27)}
+- Pre-reform gain (cost to 1 Jul 2027 value): ${fmt(preGain)}
+- Pre-reform CGT (50% discount): ${fmt(preCGT)}
+- Inflation-adjusted base at future sale: ${fmt(inflAdj)}
+- Post-reform real gain (above inflation): ${fmt(postGain)}
+- Post-reform CGT (higher of MTR or 30%): ${fmt(postCGT)}
+- Total CGT if sold later: ${fmt(cgtLater)}
+- Annual net cash flow: ${fmt(annCF)}
+- Total net cash flow over hold period: ${fmt(totalCF)}
+- Net benefit of waiting vs selling now: ${fmt(netWait)}`;
+    }
+
+    if(newPrice > 0) {
+      const newCF=newRent-newExp-(newLoan*rate/100),newNetCF=newCF+(newCF<0?Math.abs(newCF)*mtr:0);
+      const newFut=fv(newPrice,gr,yrs),newInflAdj=fv(newPrice,2.5,yrs);
+      const newPostGain=Math.max(0,newFut*(1-sc2)-newInflAdj),newCGT=Math.max(newPostGain*mtr,newPostGain*0.3);
+      calcStr += `
+NEW PROPERTY FIGURES:
+- New property purchase price: ${fmt(newPrice)}
+- New property annual net cash flow: ${fmt(newNetCF)}
+- New property future value (${yrs} years): ${fmt(newFut)}
+- New property estimated CGT on sale: ${fmt(newCGT)}`;
+    }
+
+    if(cur > 0 && newPrice > 0 && (sc === 'ppor_convert')) {
+      const pRent=n(D.pporConvertRent)||cur*0.035,pExp=n(D.pporConvertExp)||10000;
+      const futCur=fv(cur,gr,yrs),futNew=fv(newPrice,gr,yrs);
+      const A_CF=newRent-newExp-(newLoan*rate/100),A_netCF=A_CF+(A_CF<0?Math.abs(A_CF)*mtr:0);
+      const A_future=futNew*(1-sc2),A_inflAdj=fv(newPrice,2.5,yrs),A_postGain=Math.max(0,A_future-A_inflAdj);
+      const A_cgt=Math.max(A_postGain*mtr,A_postGain*0.3),A_wealth=futCur+(A_future-A_cgt)+(A_netCF*yrs)-loan;
+      const B_CF=pRent-pExp-(loan*rate/100),B_netCF=B_CF+(B_CF<0?Math.abs(B_CF)*mtr:0);
+      const B_prop=yrs/(yrs+heldYrs),B_gain=Math.max(0,futCur*(1-sc2)-cost);
+      const B_tax=B_gain*B_prop,B_cgt=B_tax*0.5*mtr;
+      const B_pporNet=futCur*(1-sc2)-B_cgt,B_wealth=B_pporNet+futNew-newLoan+(B_netCF*yrs);
+      calcStr += `
+PPOR COMPARISON:
+- Option A (keep PPOR + buy investment) estimated total wealth: ${fmt(A_wealth)}
+- Option A: CGT on current home: $0 (PPOR fully exempt)
+- Option A: Annual investment cash flow: ${fmt(A_netCF)}
+- Option B (convert PPOR + buy new) estimated total wealth: ${fmt(B_wealth)}
+- Option B: CGT on converted home (${Math.round(B_prop*100)}% investment period): ${fmt(B_cgt)}
+- Option B: Annual converted-home cash flow: ${fmt(B_netCF)}
+- Option B: Investment period proportion: ${Math.round(B_prop*100)}% of total ownership
+- Preferred option: ${A_wealth >= B_wealth ? 'Option A' : 'Option B'} by ${fmt(Math.abs(A_wealth-B_wealth))}`;
+    }
+  } catch(e) {
+    calcStr = '(Calculation context unavailable: ' + e.message + ')';
+  }
+
+  return `You are an expert Australian property tax, CGT and financial planning AI adviser. 
+You have just produced a complete analysis for a client. Answer their questions about ANY aspect of the results, calculations, assumptions, tax law basis, or strategy.
+
+SCENARIO DETECTED: ${sc}
+
+CLIENT DATA COLLECTED:
+${dataStr}
+${calcStr}
+
+TAX LAW BASIS YOU CAN EXPLAIN:
+- CGT discount: s115-100 ITAA 1997 — 50% discount for individuals/trusts on assets held >12 months
+- Main residence exemption: Subdivision 118-B ITAA 1997 — full exemption if PPOR throughout
+- Partial main residence: s118-185 — time-apportionment based on periods of use
+- 6-year absence rule: s118-145 — treat absent dwelling as main residence for up to 6 years
+- Post-reform CGT (1 Jul 2027): inflation-indexed real gain replaces 50% discount for established property (new purchases after Budget night)
+- New build treatment: may retain 50% discount under post-reform rules
+- Negative gearing: s8-1 ITAA 1997 — deductible if genuinely incurred in producing assessable income
+- Small business CGT concessions: Div 152 ITAA 1997 — 15-year exemption, retirement exemption, 50% active asset reduction, rollover
+- Grandfathering: assets held before Budget night retain pre-reform treatment
+- Cost base: s110-25 ITAA 1997 — purchase price + incidental costs + ownership costs + capital improvements
+- Selling costs: reduce capital proceeds (s116-20), typically 2-3% of sale price
+
+ASSUMPTIONS USED IN THIS MODEL:
+- Selling costs: 2.5% of sale price
+- Stamp duty on purchase: 4% of purchase price
+- Inflation rate: ${D.inflationRate || 2.5}%
+- Expected annual growth: ${D.expectedGrowth || 4.5}%
+- Years to 1 July 2027 reform: ${D.yearsToReform || 1}
+- Years held after reform before sale: ${D.yearsAfterReform || 3}
+- Post-reform CGT: higher of (real gain × marginal rate) or (real gain × 30%)
+- Negative gearing benefit: loss × marginal tax rate, applied annually
+- PPOR partial exemption: investment years ÷ total years × full gain
+
+ANSWER STYLE:
+- Be specific and quantitative — reference the actual numbers from this client's analysis
+- Explain tax law in plain English, cite the section reference briefly
+- For calculation questions, walk through each step clearly
+- 3-4 paragraphs max unless a detailed breakdown is specifically requested
+- Australian English
+- Always end with: "This is general information only — not tax or financial advice. Please confirm with your accountant."`;
+}
+
+function advAddMsg(html, role) {
+  const area = document.getElementById('advHist');
+  const w = document.createElement('div');
+  w.className = 'adv-msg';
+  if (role === 'user') {
+    w.innerHTML = `<div class="adv-bub adv-bub-u" style="margin-left:auto">${html}</div><div class="av av-u" style="flex-shrink:0">You</div>`;
+  } else {
+    const cls = role === 't' ? 'adv-bub-t' : 'adv-bub-ai';
+    w.innerHTML = `<div class="av av-ai" style="flex-shrink:0">AI</div><div class="adv-bub ${cls}">${html}</div>`;
+  }
+  area.appendChild(w);
+  area.scrollTop = area.scrollHeight;
+  return w.querySelector('.adv-bub');
+}
+
+function advShowT() {
+  const el = advAddMsg('Thinking…', 't');
+  let i = 0;
+  el._t = setInterval(() => { el.textContent = 'Thinking' + ['…','.. ','.  '][i++%3]; }, 400);
+  advTel = el;
+}
+function advHideT() {
+  if (advTel) { clearInterval(advTel._t); advTel.closest('.adv-msg').remove(); advTel = null; }
+}
+
+async function advSend() {
+  const inp = document.getElementById('advIn');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  document.getElementById('advBtn').disabled = true;
+  document.getElementById('advChips').innerHTML = '';
+  advAddMsg(msg, 'user');
+  advShowT();
+
+  advHist.push({ role: 'user', content: msg });
+
+  try {
+    const text = await callAPI(calcContext, advHist.slice(-20), 800);
+    advHideT();
+    advAddMsg(text, 'ai');
+    advHist.push({ role: 'assistant', content: text });
+  } catch(e) {
+    advHideT();
+    advAddMsg('Error: ' + e.message, 'ai');
+  }
+  document.getElementById('advBtn').disabled = false;
+  inp.focus();
+}
+
+function advChip(q) {
+  document.getElementById('advIn').value = q;
+  advSend();
+}
+
+function showAdviser() {
+  calcContext = buildAdviserContext();
+  const panel = document.getElementById('advPanel');
+  panel.classList.add('visible');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Opening message from the adviser
+  const area = document.getElementById('advHist');
+  if (area.children.length === 0) {
+    advAddMsg("I have reviewed the full analysis and all the underlying calculations. Ask me anything — what a specific number means, how it was calculated, the tax law that applies, whether an assumption is reasonable, or what would change if your numbers were different.", 'ai');
+  }
+
+  // Scenario-specific suggested questions
+  const sc = D.scenarioType || '';
+  const chips = {
+    sell_before_reform: ['How was my CGT calculated?','What is the 50% CGT discount and how does it work?','What tax law applies to my situation?','Why might the post-reform CGT be higher?','What assumptions did you use?','How does grandfathering affect me?'],
+    sell_after_reform: ['Walk me through the gain split at 1 July 2027','How is the inflation adjustment calculated?','What is the legal basis for the post-reform rules?','Why is my post-reform CGT calculated at the higher of marginal rate or 30%?','What if my growth assumption is wrong?','Do I definitely need a formal valuation?'],
+    hold_or_sell: ['Why does holding come out ahead in my case?','How did you calculate the net benefit of waiting?','What assumptions drive this result the most?','What would change if interest rates rise?','Explain negative gearing for my situation','What is the tax law basis for the CGT calculation?'],
+    ppor_convert: ['How is the partial PPOR exemption calculated?','Walk me through the Option A vs B comparison','What is the legal basis for the 6-year rule?','Why is Option A better/worse in my case?','How would the result change if I rented my current home for more?','What are the stamp duty implications?'],
+    buy_established: ['How does post-reform CGT affect my purchase compared to before?','Is the yield on this property sufficient?','How was the total estimated return calculated?','What would the CGT be if I sold after 5 years instead of 7?','Explain negative gearing for this property','What assumptions are most uncertain?'],
+    buy_new_build: ['Why exactly do new builds get better CGT treatment?','How does the CGT comparison between new and established work?','What is the depreciation benefit on a new build?','What are the risks of buying a new build vs established?','How was the yield calculated?'],
+    valuation: ['How exactly does a valuation protect my CGT position?','What is the legal basis for the 1 July 2027 valuation?','What happens if I do not get a valuation?','Is CoreLogic legally sufficient?','Walk me through how the pre-reform gain was calculated','What records do I need to keep?'],
+    business_sale: ['Am I likely to qualify for the 15-year exemption?','How does the 50% active asset reduction work with the CGT discount?','What is Div 152 ITAA 1997?','Should I sell shares or assets?','How does the retirement exemption interact with my super?','What does selling before 1 July 2027 actually save me?'],
+  };
+  const defaultChips = ['How was this calculated?','What tax law applies?','What are the key assumptions?','What would change my result most?','Explain the CGT rules in plain English','What should I do next?'];
+  const q = chips[sc] || defaultChips;
+  document.getElementById('advChips').innerHTML = q.map(c =>
+    `<button class="adv-chip" onclick="advChip('${c.replace(/'/g,"\'")}') ">${c}</button>`
+  ).join('');
+}
+
+// Inject the adviser panel HTML into the page (called once after DOM ready)
+function injectAdviserPanel() {
+  const existing = document.getElementById('advPanel');
+  if (existing) return;
+  const panel = document.createElement('div');
+  panel.id = 'advPanel';
+  panel.innerHTML = `
+    <div class="adv-header">
+      <div class="av av-ai" style="flex-shrink:0;width:34px;height:34px;font-size:13px">AI</div>
+      <div>
+        <h3>Ask the adviser — question anything</h3>
+        <p>Full access to all calculations, assumptions, tax law basis and strategy</p>
+      </div>
+    </div>
+    <div class="adv-history" id="advHist"></div>
+    <div class="adv-chips" id="advChips"></div>
+    <div class="adv-input-row">
+      <input type="text" id="advIn" placeholder="Ask about any number, calculation, assumption or tax rule..." onkeydown="if(event.key==='Enter'&&!event.shiftKey)advSend()">
+      <button id="advBtn" onclick="advSend()">Ask ↗</button>
+    </div>`;
+  document.getElementById('rw').after(panel);
+}
+
+domReady(injectAdviserPanel);
+</script>
+</body>
+</html>
