@@ -143,7 +143,7 @@ body{font-family:system-ui,-apple-system,sans-serif;color:var(--txt);font-size:1
 .adv-input-row input:focus{outline:none;border-color:var(--red)}
 .adv-input-row button{background:var(--red);color:#fff;border:none;border-radius:var(--r);padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer}
 .adv-input-row button:disabled{opacity:.4;cursor:not-allowed}
-.mc{position:relative;padding-right:28px}.mc-ask{position:absolute;top:8px;right:7px;width:18px;height:18px;border-radius:50%;background:var(--bg);border:0.5px solid var(--bdr2);color:var(--txt2);font-size:10px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;transition:background .15s}.mc-ask:hover{background:#c42a2a;color:#fff;border-color:#c42a2a}
+.mc{position:relative;padding-right:28px}.mc-ask{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;background:rgba(196,42,42,0.12);border:1.5px solid var(--red);color:var(--red);font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;transition:all .15s}.mc-ask:hover{background:var(--red);color:#fff}
 .eb-rows{display:flex;flex-direction:column;gap:0}.eb-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:0.5px solid var(--bdr);gap:12px}.eb-row:last-child{border-bottom:none}.eb-total{font-weight:600;border-top:1px solid var(--bdr2);padding-top:12px}.eb-label{color:var(--txt2);font-size:13px;line-height:1.5;flex:1}.eb-val{font-size:13px;font-weight:500;text-align:right;line-height:1.5;display:flex;align-items:center;gap:4px;flex-shrink:0}.eb-div{height:1px;background:var(--bdr2);margin:8px 0}
 </style>
 </head>
@@ -354,7 +354,7 @@ CRITICAL SCENARIO RULES — read every line before setting scenarioType:
 - NEVER leave scenarioType unset — always set it in the FIRST response
 
 STEP 2 — COLLECT DATA EFFICIENTLY (max 3-4 questions total):
-For ppor_convert ask in order: (1) current home value + what they paid, (2) new property budget, (3) income/tax bracket. That is all you need — then trigger __COMPLETE__.
+For ppor_convert ask in order: (1) current home value + what they paid + how long held, (2) budget for the NEW property they want to buy (this is newPropPrice — the investment or new home), (3) income/tax bracket. Then trigger __COMPLETE__. Always set __SET_newPropPrice:VALUE__ for the new property.
 For hold_or_sell ask: (1) property value + cost base, (2) loan balance + rental income, (3) tax rate. Then __COMPLETE__.
 For buy scenarios ask: (1) purchase price + expected rent, (2) tax rate. Then __COMPLETE__.
 For valuation ask: (1) current value + original purchase price, (2) how long held. Then __COMPLETE__.
@@ -455,21 +455,37 @@ function restart() {
 
 // ─── RESULTS ENGINE ───────────────────────────────────────────────────────────
 function askMetric(label, value) {
-  var panel = document.getElementById('advPanel');
-  if (!panel) return;
-  panel.classList.add('visible');
-  if (!document.getElementById('advHist') || document.getElementById('advHist').children.length === 0) {
+  var ex = document.getElementById('metricTooltip');
+  if (ex) ex.remove();
+  var tt = document.createElement('div');
+  tt.id = 'metricTooltip';
+  tt.style.cssText = 'position:fixed;bottom:20px;right:20px;width:300px;max-width:88vw;background:var(--bg);border:1px solid var(--bdr2);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.2);z-index:9999;overflow:hidden';
+  tt.innerHTML = '<div style="background:var(--red);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">'
+    + '<div style="color:#fff;font-size:13px;font-weight:500">' + label + ': <strong>' + value + '</strong></div>'
+    + '<button id="ttClose" style="background:none;border:none;color:rgba(255,255,255,0.8);cursor:pointer;font-size:20px;line-height:1;padding:0 0 0 10px">×</button>'
+    + '</div>'
+    + '<div id="ttBody" style="padding:12px 14px;font-size:13px;color:var(--txt);line-height:1.65;min-height:50px">Calculating...</div>'
+    + '<div style="padding:8px 14px;border-top:0.5px solid var(--bdr);background:var(--bg2)">'
+    + '<button id="ttDeep" style="background:var(--red);color:#fff;border:none;border-radius:6px;padding:7px 12px;font-size:12px;cursor:pointer;width:100%;font-weight:500">Full step-by-step explanation ↗</button>'
+    + '</div>';
+  document.body.appendChild(tt);
+  document.getElementById('ttClose').onclick = function() { tt.remove(); };
+  document.getElementById('ttDeep').onclick = function() {
+    tt.remove();
     showAdviser();
-  }
-  var q = 'Show me exactly how ' + label + ' (' + value + ') was calculated — walk me through every step.';
-  var inp = document.getElementById('advIn');
-  if (!inp) return;
-  inp.value = q;
-  inp.focus();
-  setTimeout(function(){
-    advSend();
-    panel.scrollIntoView({behavior:'smooth', block:'start'});
-  }, 150);
+    setTimeout(function() {
+      var inp = document.getElementById('advIn');
+      if (inp) {
+        inp.value = 'Walk me through every step of how ' + label + ' (' + value + ') was calculated, using the exact numbers from my analysis';
+        advSend();
+      }
+    }, 300);
+  };
+  var data = Object.entries(D).filter(function(e){return e[1]!==null;}).map(function(e){return e[0]+':'+e[1];}).join(', ');
+  var sys = 'You are a CGT calculation explainer. Client data: ' + data + '. Answer in 2-3 plain sentences only. Be specific with the actual numbers from the data. No markdown.';
+  callAPI(sys, [{role:'user', content:'In 2-3 sentences, what is ' + label + ' (' + value + ') and the key calculation used?'}], 120)
+    .then(function(t) { var b=document.getElementById('ttBody'); if(b) b.textContent=t; })
+    .catch(function() { var b=document.getElementById('ttBody'); if(b) b.textContent='Tap below for full step-by-step breakdown.'; });
 }
 
 function buildResults() {
@@ -643,7 +659,8 @@ function buildHoldOrSell() {
   const netNow=cur*(1-sc),cgtNow=Math.max(0,netNow-cost)*0.5*mtr;
   const futVal=fv(cur,gr,yrs),netFut=futVal*(1-sc);
   const preGain=Math.max(0,fv(cur,gr,yrTo)-cost),preCGT=preGain*0.5*mtr;
-  const inflAdj=fv(fv(cur,gr,yrTo),2.5,yrAft),postGain=Math.max(0,netFut-inflAdj),postCGT=Math.max(postGain*mtr,postGain*0.3);
+  const postYrs=Math.max(0,yrs-yrTo);
+  const inflAdj=fv(fv(cur,gr,yrTo),2.5,postYrs),postGain=Math.max(0,netFut-inflAdj),postCGT=Math.max(postGain*mtr,postGain*0.3);
   const cgtFut=preCGT+postCGT,annCF=inc-exp-(loan*rate/100),totalCF=annCF*yrs;
   const netHold=netFut-cgtFut+totalCF,netSell=netNow-cgtNow,holdBetter=netHold>netSell;
   const grossYield=cur>0?inc/cur*100:0;
@@ -690,10 +707,10 @@ function buildPPORConvert() {
     <div class="sc ${aPref?'best':''}">
       ${aPref?`<div style="font-size:10px;font-weight:500;background:var(--greenl);color:var(--green);padding:3px 9px;border-radius:5px;display:inline-block;margin-bottom:6px">Recommended</div>`:''}
       <div class="stag">Option A</div><h3>Keep PPOR + buy investment</h3>
-      <div class="sr"><span>CGT on current home</span><span style="color:var(--green);font-weight:500">$0 (fully exempt)</span></div>
-      <div class="sr"><span>Annual investment cash flow</span><span style="color:${A_netCF>=0?'var(--green)':'var(--red2)'};font-weight:500">${fmt(A_netCF)}</span><button class="sr-ask" onclick="askMetric('Annual investment cash flow','${fmt(A_netCF)}')">?</button></div>
+      <div class="sr"><span>CGT on current home (PPOR — fully exempt)</span><span style="color:var(--green);font-weight:500">$0</span></div>
+      <div class="sr"><span>New investment (${fmt(newPrice)}) annual CF</span><span style="color:${A_netCF>=0?'var(--green)':'var(--red2)'};font-weight:500">${fmt(A_netCF)}</span><button class="sr-ask" onclick="askMetric('Annual investment cash flow','${fmt(A_netCF)}')">?</button></div>
       <div class="sr"><span>Estimated total wealth</span><span style="font-weight:500">${fmt(A_wealth)}</span><button class="sr-ask" onclick="askMetric('Estimated total wealth</span>','${fmt(A_wealth)}')">?</button></div>
-      <div class="snote" style="background:var(--greenl);color:var(--green)">PPOR fully protected. Investment CGT applies only from purchase date.</div>
+      <div class="snote" style="background:var(--greenl);color:var(--green)">PPOR fully protected. Cash flow is for the ${fmt(newPrice)} investment property. Your current home has $0 CGT.</div>
     </div>
     <div class="sc ${!aPref?'best':''}">
       ${!aPref?`<div style="font-size:10px;font-weight:500;background:var(--info-bg);color:var(--info-txt);padding:3px 9px;border-radius:5px;display:inline-block;margin-bottom:6px">Recommended</div>`:''}
@@ -750,7 +767,9 @@ function buildBuyNewBuild() {
   const newFut=fv(price,gr,yrs),estFut=fv(estP,gr,yrs);
   const newInflAdj=fv(price,2.5,yrs),estInflAdj=fv(estP,2.5,yrs);
   const newPostGain=Math.max(0,newFut*(1-sc)-newInflAdj),estPostGain=Math.max(0,estFut*(1-sc)-estInflAdj);
-  const newCGT=newPostGain*0.5*mtr,estCGT=Math.max(estPostGain*mtr,estPostGain*0.3);
+  // New builds retain 50% discount on FULL nominal gain (Budget policy)
+  const newNomGain=Math.max(0,newFut*(1-sc)-price);
+  const newCGT=newNomGain*0.5*mtr,estCGT=Math.max(estPostGain*mtr,estPostGain*0.3);
   return `<div class="rh"><div class="rt">Analysis: new build vs established</div>
     <span class="vpill vi">Scenario comparison</span>
     <h2>New build vs established — key differences under the Budget rules</h2>
@@ -803,7 +822,7 @@ function buildBuyOrWait() {
 
 function buildFirstHome() {
   const price=n(D.newPropPrice)||700000,mtr=n(D.mtr)/100||0.32,rate=n(D.interestRate)||6.2;
-  const loan=price*0.9,monthly=(loan*rate/100/12)*Math.pow(1+rate/100/12,300)/(Math.pow(1+rate/100/12,300)-1);
+  const loan=price*0.9,monthly=(loan*rate/100/12)*Math.pow(1+rate/100/12,360)/(Math.pow(1+rate/100/12,360)-1);
   const gr=n(D.expectedGrowth)||4.5;
   return `<div class="rh"><div class="rt">Analysis: first home buyer</div>
     <span class="vpill vi">First home buyer guide</span>
@@ -895,7 +914,10 @@ function buildTrustStructure() {
 
 function buildBusinessSale() {
   const cost=n(D.costBase),cur=n(D.currentValue),mtr=n(D.mtr)/100||0.47;
-  const gain=Math.max(0,cur-cost),cgtStd=gain*0.5*mtr,cgtRetire=Math.max(0,gain-500000)*mtr,retireBetter=cgtRetire<cgtStd;
+  const gain=Math.max(0,cur-cost),cgtStd=gain*0.5*mtr;
+  // Retirement exemption: apply 50% active asset reduction first (Div 152 ITAA)
+  const activeGain=gain*0.5,retireExempt=Math.min(500000,activeGain);
+  const cgtRetire=Math.max(0,activeGain-retireExempt)*mtr,retireBetter=cgtRetire<cgtStd;
   return `<div class="rh"><div class="rt">Analysis: business sale and succession</div>
     <span class="vpill vp">Business exit planning</span>
     <h2>Business sale and succession — concessions and the Budget CGT changes</h2>
