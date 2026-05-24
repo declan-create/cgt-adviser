@@ -591,8 +591,9 @@ function disc() {
 // ─── SCENARIO BUILDERS ────────────────────────────────────────────────────────
 function buildSellBefore() {
   const cost=n(D.costBase),cur=n(D.currentValue),mtr=n(D.mtr)/100||0.47;
-  const loan=n(D.loanBalance),inc=n(D.annualIncome),exp=n(D.annualExpenses)||8000,rate=n(D.interestRate)||6.2;
+  const loan=n(D.loanBalance),inc=n(D.annualIncome),rate=n(D.interestRate)||6.2;
   const gr=n(D.expectedGrowth)||4.5,yrTo=n(D.yearsToReform)||1,yrAft=n(D.yearsAfterReform)||3,sc=0.025;
+  const exp=n(D.annualExpenses)||(inc>0?inc*0.10:8000);
   const netNow=cur*(1-sc),gainNow=Math.max(0,netNow-cost),cgtNow=gainNow*0.5*mtr;
   const futLater=fv(cur,gr,yrTo+yrAft),netLater=futLater*(1-sc);
   const preGain=Math.max(0,fv(cur,gr,yrTo)-cost),preCGT=preGain*0.5*mtr;
@@ -625,7 +626,8 @@ function buildSellBefore() {
 function buildSellAfter() {
   const cost=n(D.costBase),cur=n(D.currentValue),mtr=n(D.mtr)/100||0.47;
   const gr=n(D.expectedGrowth)||4.5,yrTo=n(D.yearsToReform)||1,yrAft=n(D.yearsAfterReform)||3,sc=0.025;
-  const loan=n(D.loanBalance),inc=n(D.annualIncome),exp=n(D.annualExpenses)||8000,rate=n(D.interestRate)||6.2;
+  const loan=n(D.loanBalance),inc=n(D.annualIncome),rate=n(D.interestRate)||6.2;
+  const exp=n(D.annualExpenses)||(inc>0?inc*0.10:8000);
   const val27=fv(cur,gr,yrTo),futVal=fv(val27,gr,yrAft),netFut=futVal*(1-sc);
   const preGain=Math.max(0,val27-cost),preCGT=preGain*0.5*mtr;
   const inflAdj=fv(val27,2.5,yrAft),postGain=Math.max(0,netFut-inflAdj),postCGT=Math.max(postGain*mtr,postGain*0.3);
@@ -653,7 +655,8 @@ function buildSellAfter() {
 
 function buildHoldOrSell() {
   const cost=n(D.costBase),cur=n(D.currentValue),mtr=n(D.mtr)/100||0.47;
-  const loan=n(D.loanBalance),inc=n(D.annualIncome),exp=n(D.annualExpenses)||8000,rate=n(D.interestRate)||6.2;
+  const loan=n(D.loanBalance),inc=n(D.annualIncome),rate=n(D.interestRate)||6.2;
+  const exp=n(D.annualExpenses)||(inc>0?inc*0.10:8000);
   const gr=n(D.expectedGrowth)||4.5,yrs=n(D.yearsHorizon)||7,sc=0.025;
   const yrTo=n(D.yearsToReform)||1,yrAft=n(D.yearsAfterReform)||3;
   const netNow=cur*(1-sc),cgtNow=Math.max(0,netNow-cost)*0.5*mtr;
@@ -683,11 +686,14 @@ function buildHoldOrSell() {
 }
 
 function buildPPORConvert() {
-  const curVal=n(D.currentValue),curCost=n(D.costBase)||curVal*0.6,curLoan=n(D.loanBalance);
+  const curVal=n(D.currentValue),curLoan=n(D.loanBalance);
+  const curCostProvided=!!D.costBase,curCost=n(D.costBase)||curVal*0.6;
   const newPrice=n(D.newPropPrice),newLoan=n(D.newPropLoan)||newPrice*0.8;
   const mtr=n(D.mtr)/100||0.47,rate=n(D.interestRate)||6.2,gr=n(D.expectedGrowth)||4.5,yrs=n(D.yearsHorizon)||7;
-  const pRent=n(D.pporConvertRent)||curVal*0.035,pExp=n(D.pporConvertExp)||10000;
-  const nRent=n(D.newPropRent)||newPrice*0.04,nExp=n(D.newPropExpenses)||8000;
+  const pRent=n(D.pporConvertRent)||curVal*0.035;
+  const pExp=n(D.pporConvertExp)||(pRent*0.10);
+  const nRent=n(D.newPropRent)||newPrice*0.04;
+  const nExp=n(D.newPropExpenses)||(nRent*0.10);
   const sc=0.025,heldYrs=n(D.heldYears)||5;
   const futCur=fv(curVal,gr,yrs),futNew=fv(newPrice,gr,yrs);
   const A_CF=nRent-nExp-(newLoan*rate/100),A_netCF=A_CF+(A_CF<0?Math.abs(A_CF)*mtr:0);
@@ -718,7 +724,7 @@ function buildPPORConvert() {
       <div class="sr"><span>CGT on current home (${Math.round(B_prop*100)}% inv. period)</span><span style="color:var(--red2);font-weight:500">${fmt(B_cgt)}</span><button class="sr-ask" onclick="askMetric('CGT on PPOR conversion','${fmt(B_cgt)}')">?</button></div>
       <div class="sr"><span>Annual converted-home cash flow</span><span style="color:${B_netCF>=0?'var(--green)':'var(--red2)'};font-weight:500">${fmt(B_netCF)}</span><button class="sr-ask" onclick="askMetric('Annual converted-home cash flow','${fmt(B_netCF)}')">?</button></div>
       <div class="sr"><span>Estimated total wealth</span><span style="font-weight:500">${fmt(B_wealth)}</span></div>
-      <div class="snote" style="background:var(--info-bg);color:var(--info-txt)">Partial CGT based on investment-period proportion. New home becomes your PPOR.</div>
+      <div class="snote" style="background:var(--info-bg);color:var(--info-txt)">Partial CGT based on investment-period proportion. New home becomes your PPOR.${!curCostProvided?" Cost base estimated at 60% of current value — provide your actual purchase price for accuracy.":""}</div>
     </div>
   </div>
   ${esec('ppor-cgt','The PPOR CGT comparison — critical difference','This single variable most often determines which option wins',
@@ -731,12 +737,13 @@ function buildPPORConvert() {
 
 function buildBuyEstablished() {
   const price=n(D.newPropPrice),loan=n(D.newPropLoan)||price*0.8,mtr=n(D.mtr)/100||0.47;
-  const rent=n(D.newPropRent)||price*0.04,exp=n(D.newPropExpenses)||8000,rate=n(D.interestRate)||6.2;
+  const rent=n(D.newPropRent)||price*0.04,rate=n(D.interestRate)||6.2;
+  const exp=n(D.newPropExpenses)||(rent*0.10);
   const gr=n(D.expectedGrowth)||4.5,yrs=n(D.yearsHorizon)||7,sc=0.025,sd=0.04;
   const annCF=rent-exp-(loan*rate/100),netCF=annCF+(annCF<0?Math.abs(annCF)*mtr:0);
   const futVal=fv(price,gr,yrs),netFut=futVal*(1-sc);
   const inflAdj=fv(price,2.5,yrs),postGain=Math.max(0,netFut-inflAdj),cgt=Math.max(postGain*mtr,postGain*0.3);
-  const grossYield=price>0?rent/price*100:0,totalReturn=price>0?((netFut-cgt+netCF*yrs-price)/price)*100:0;
+  const grossYield=price>0?rent/price*100:0,totalReturn=price>0?((netFut-cgt+netCF*yrs-price*(1+sd))/(price*(1+sd)))*100:0;
   return `<div class="rh"><div class="rt">Analysis: buy established property</div>
     <span class="vpill ${grossYield>3&&totalReturn>30?'vg':'va'}">${grossYield>3&&totalReturn>30?'Investment case looks viable':'Review carefully before committing'}</span>
     <h2>${grossYield>3&&totalReturn>30?'This established property stacks up under the Budget rules':'Thin margins warrant careful consideration'}</h2>
@@ -759,7 +766,8 @@ function buildBuyEstablished() {
 
 function buildBuyNewBuild() {
   const price=n(D.newPropPrice),loan=n(D.newPropLoan)||price*0.8,mtr=n(D.mtr)/100||0.47;
-  const rent=n(D.newPropRent)||price*0.037,exp=n(D.newPropExpenses)||7000,rate=n(D.interestRate)||6.2;
+  const rent=n(D.newPropRent)||price*0.037,rate=n(D.interestRate)||6.2;
+  const exp=n(D.newPropExpenses)||(rent*0.10);
   const gr=n(D.expectedGrowth)||4.5,yrs=n(D.yearsHorizon)||7,sc=0.025;
   const estP=price*0.9,estR=rent*0.98;
   const newCF=rent-exp-(loan*rate/100),newNetCF=newCF+(newCF<0?Math.abs(newCF)*mtr:0);
@@ -799,7 +807,8 @@ function buildBuyNewBuild() {
 function buildBuyOrWait() {
   const price=n(D.newPropPrice)||800000,mtr=n(D.mtr)/100||0.47;
   const rent=n(D.newPropRent)||price*0.04,rate=n(D.interestRate)||6.2,gr=n(D.expectedGrowth)||4.5;
-  const loan=price*0.8,exp=n(D.newPropExpenses)||8000,waitYrs=2;
+  const loan=price*0.8,waitYrs=2;
+  const exp=n(D.newPropExpenses)||(rent*0.10);
   const annCF=rent-exp-(loan*rate/100),netCF=annCF+(annCF<0?Math.abs(annCF)*mtr:0);
   const costOfWaiting=fv(price,gr,waitYrs)-price,rentForgone=netCF*waitYrs;
   return `<div class="rh"><div class="rt">Analysis: buy now or wait</div>
@@ -873,7 +882,8 @@ function buildValuation() {
 
 function buildRefinance() {
   const cur=n(D.currentValue),loan=n(D.loanBalance),mtr=n(D.mtr)/100||0.47;
-  const rate=n(D.interestRate)||6.2,inc=n(D.annualIncome),exp=n(D.annualExpenses)||8000;
+  const rate=n(D.interestRate)||6.2,inc=n(D.annualIncome);
+  const exp=n(D.annualExpenses)||(inc>0?inc*0.10:8000);
   const annCF=inc-exp-(loan*rate/100),taxBen=annCF<0?Math.abs(annCF)*mtr:0,lvr=cur>0?loan/cur*100:0;
   return `<div class="rh"><div class="rt">Analysis: refinance and restructure</div>
     <span class="vpill vi">Scenario analysis</span>
@@ -892,8 +902,8 @@ function buildRefinance() {
 }
 
 function buildTrustStructure() {
-  const cur=n(D.currentValue),mtr=n(D.mtr)/100||0.47,cost=n(D.costBase);
-  const gain=Math.max(0,cur-cost);
+  const cur=n(D.currentValue),mtr=n(D.mtr)/100||0.47,cost=n(D.costBase),sc=0.025;
+  const gain=Math.max(0,cur*(1-sc)-cost);
   const cgtInd=gain*0.5*mtr,cgtCo=gain*0.3,cgtTrust=gain*0.5*mtr;
   return `<div class="rh"><div class="rt">Analysis: trust and ownership structure</div>
     <span class="vpill vp">Structure review</span>
@@ -914,7 +924,7 @@ function buildTrustStructure() {
 
 function buildBusinessSale() {
   const cost=n(D.costBase),cur=n(D.currentValue),mtr=n(D.mtr)/100||0.47;
-  const gain=Math.max(0,cur-cost),cgtStd=gain*0.5*mtr;
+  const sc=0.025,gain=Math.max(0,cur*(1-sc)-cost),cgtStd=gain*0.5*mtr;
   // Retirement exemption: apply 50% active asset reduction first (Div 152 ITAA)
   const activeGain=gain*0.5,retireExempt=Math.min(500000,activeGain);
   const cgtRetire=Math.max(0,activeGain-retireExempt)*mtr,retireBetter=cgtRetire<cgtStd;
@@ -953,11 +963,12 @@ function buildAdviserContext() {
   let calcStr = '';
   try {
     const cost=n(D.costBase),cur=n(D.currentValue),mtr=n(D.mtr)/100||0.47;
-    const loan=n(D.loanBalance),inc=n(D.annualIncome),exp=n(D.annualExpenses)||8000,rate=n(D.interestRate)||6.2;
+    const loan=n(D.loanBalance),inc=n(D.annualIncome),rate=n(D.interestRate)||6.2;
+    const exp=n(D.annualExpenses)||(inc>0?inc*0.10:8000);
     const gr=n(D.expectedGrowth)||4.5,yrs=n(D.yearsHorizon)||7,sc2=0.025;
     const yrTo=n(D.yearsToReform)||1,yrAft=n(D.yearsAfterReform)||3;
     const newPrice=n(D.newPropPrice),newLoan=n(D.newPropLoan)||newPrice*0.8;
-    const newRent=n(D.newPropRent),newExp=n(D.newPropExpenses)||8000;
+    const newRent=n(D.newPropRent),newExp=n(D.newPropExpenses)||(newRent>0?newRent*0.10:8000);
     const heldYrs=n(D.heldYears)||5;
 
     if(cur > 0 && cost > 0) {
@@ -1054,13 +1065,19 @@ ASSUMPTIONS USED IN THIS MODEL:
 - Post-reform CGT: higher of (real gain × marginal rate) or (real gain × 30%)
 - Negative gearing benefit: loss × marginal tax rate, applied annually
 - PPOR partial exemption: investment years ÷ total years × full gain
+- Annual expenses default: 10% of annual rental income (property management, maintenance, rates, insurance)
+- DO NOT quote any expense figure other than what is in the client data or this assumption
 
 ANSWER STYLE:
-- Be specific and quantitative — reference the actual numbers from this client's analysis
+- ONLY use the exact numbers provided in CLIENT DATA and CALCULATED FIGURES above. NEVER invent figures, percentages, or dollar amounts not explicitly listed.
+- If asked about expenses: the model uses expenses = 10% of annual rent income. State this explicitly.
+- If asked about a figure not in your data: say "That figure wasn't part of this analysis — here's what was calculated: [relevant figure]"
+- Be specific and quantitative — reference ONLY the actual numbers from this client's analysis
 - Explain tax law in plain English, cite the section reference briefly
-- For calculation questions, walk through each step clearly
+- For calculation questions, walk through each step using ONLY the numbers from CALCULATED FIGURES
 - 3-4 paragraphs max unless a detailed breakdown is specifically requested
 - Australian English
+- Never invent example calculations with made-up numbers when real numbers are available
 - Always end with: "This is general information only — not tax or financial advice. Please confirm with your accountant."`;
 }
 
