@@ -144,6 +144,7 @@ body{font-family:system-ui,-apple-system,sans-serif;color:var(--txt);font-size:1
 .adv-input-row button{background:var(--red);color:#fff;border:none;border-radius:var(--r);padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer}
 .adv-input-row button:disabled{opacity:.4;cursor:not-allowed}
 .mc{position:relative;padding-right:28px}.mc-ask{position:absolute;top:8px;right:7px;width:18px;height:18px;border-radius:50%;background:var(--bg);border:0.5px solid var(--bdr2);color:var(--txt2);font-size:10px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;transition:background .15s}.mc-ask:hover{background:#c42a2a;color:#fff;border-color:#c42a2a}
+.eb-rows{display:flex;flex-direction:column;gap:0}.eb-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:0.5px solid var(--bdr);gap:12px}.eb-row:last-child{border-bottom:none}.eb-total{font-weight:600;border-top:1px solid var(--bdr2);padding-top:12px}.eb-label{color:var(--txt2);font-size:13px;line-height:1.5;flex:1}.eb-val{font-size:13px;font-weight:500;text-align:right;line-height:1.5;display:flex;align-items:center;gap:4px;flex-shrink:0}.eb-div{height:1px;background:var(--bdr2);margin:8px 0}
 </style>
 </head>
 <body>
@@ -298,11 +299,19 @@ function extractTags(text) {
 
 // ─── API CALL ─────────────────────────────────────────────────────────────────
 async function callAPI(systemPrompt, messages, maxTokens = 600) {
-  const resp = await fetch(window.location.hostname === 'localhost' ? '/api/claude' : '/.netlify/functions/claude', {
+  const resp = await fetch(
+      (window.location.hostname === 'localhost') ? '/api/claude' :
+      (window.location.hostname === '' || window.location.hostname.includes('claude.ai') || window.location.hostname.includes('anthropic.com')) ? 'https://api.anthropic.com/v1/messages' :
+      '/.netlify/functions/claude', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers: Object.assign(
+      {'Content-Type': 'application/json'},
+      (window.location.hostname === '' || window.location.hostname.includes('claude.ai') || window.location.hostname.includes('anthropic.com')) ? {
+        'x-api-key': (sessionStorage.getItem('cgt_key') || ''),
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      } : {}
+    ),
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
       max_tokens: maxTokens,
@@ -393,6 +402,17 @@ async function send() {
 
 async function init() {
   $('sb').disabled = true;
+  // In artifact/direct mode, check for API key
+  const isDirect = window.location.hostname === '' || window.location.hostname.includes('claude.ai') || window.location.hostname.includes('anthropic.com');
+  if (isDirect && !sessionStorage.getItem('cgt_key')) {
+    const k = prompt('Enter your Anthropic API key to test (sk-ant-...):');
+    if (!k || !k.startsWith('sk-')) {
+      addMsg('No valid API key entered. Please refresh and try again.', 'err');
+      $('sb').disabled = false;
+      return;
+    }
+    sessionStorage.setItem('cgt_key', k);
+  }
   // Show static content immediately so page is never blank
   const area = $('cm');
   if (area && area.children.length === 0) {
@@ -501,10 +521,13 @@ function esec(id, title, sub, rows, iid, defQ) {
       <i class="ti ti-chevron-down" id="eti-${id}" style="color:var(--txt2);font-size:16px;flex-shrink:0"></i>
     </div>
     <div class="eb" id="ebb-${id}">
-      <table>${rows.map((r,i) => r[0]==='---'
-        ? `<tr><td colspan="2" style="border-bottom:0.5px solid var(--bdr2);padding:3px 0"></td></tr>`
-        : `<tr${i===rows.length-1?' class="total"':''}><td>${r[0]}</td><td>${r[1]}</td></tr>`
-      ).join('')}</table>
+      <div class="eb-rows">${rows.map((r,i) => r[0]==='---'
+        ? `<div class="eb-div"></div>`
+        : `<div class="eb-row${i===rows.length-1?' eb-total':''}">
+            <div class="eb-label">${r[0]}</div>
+            <div class="eb-val">${r[1]}${r[1]?`<button class="sr-ask" onclick="askMetric('${r[0].replace(/'/g, "\\'")}','${r[1].replace(/'/g, "\\'")}')">?</button>`:''}</div>
+          </div>`
+      ).join('')}</div>
       <div class="iaw">
         <input type="text" id="ia-${iid}" placeholder="${defQ||'Ask about this section...'}" onkeydown="if(event.key==='Enter')askS('${iid}','${title}')">
         <button onclick="askS('${iid}','${title}')">Ask ↗</button>
@@ -668,15 +691,15 @@ function buildPPORConvert() {
       ${aPref?`<div style="font-size:10px;font-weight:500;background:var(--greenl);color:var(--green);padding:3px 9px;border-radius:5px;display:inline-block;margin-bottom:6px">Recommended</div>`:''}
       <div class="stag">Option A</div><h3>Keep PPOR + buy investment</h3>
       <div class="sr"><span>CGT on current home</span><span style="color:var(--green);font-weight:500">$0 (fully exempt)</span></div>
-      <div class="sr"><span>Annual investment cash flow</span><span style="color:${A_netCF>=0?'var(--green)':'var(--red2)'};font-weight:500">${fmt(A_netCF)}</span></div>
-      <div class="sr"><span>Estimated total wealth</span><span style="font-weight:500">${fmt(A_wealth)}</span></div>
+      <div class="sr"><span>Annual investment cash flow</span><span style="color:${A_netCF>=0?'var(--green)':'var(--red2)'};font-weight:500">${fmt(A_netCF)}</span><button class="sr-ask" onclick="askMetric('Annual investment cash flow','${fmt(A_netCF)}')">?</button></div>
+      <div class="sr"><span>Estimated total wealth</span><span style="font-weight:500">${fmt(A_wealth)}</span><button class="sr-ask" onclick="askMetric('Estimated total wealth</span>','${fmt(A_wealth)}')">?</button></div>
       <div class="snote" style="background:var(--greenl);color:var(--green)">PPOR fully protected. Investment CGT applies only from purchase date.</div>
     </div>
     <div class="sc ${!aPref?'best':''}">
       ${!aPref?`<div style="font-size:10px;font-weight:500;background:var(--info-bg);color:var(--info-txt);padding:3px 9px;border-radius:5px;display:inline-block;margin-bottom:6px">Recommended</div>`:''}
       <div class="stag">Option B</div><h3>Convert PPOR + buy new home</h3>
-      <div class="sr"><span>CGT on current home (${Math.round(B_prop*100)}% inv. period)</span><span style="color:var(--red2);font-weight:500">${fmt(B_cgt)}</span></div>
-      <div class="sr"><span>Annual converted-home cash flow</span><span style="color:${B_netCF>=0?'var(--green)':'var(--red2)'};font-weight:500">${fmt(B_netCF)}</span></div>
+      <div class="sr"><span>CGT on current home (${Math.round(B_prop*100)}% inv. period)</span><span style="color:var(--red2);font-weight:500">${fmt(B_cgt)}</span><button class="sr-ask" onclick="askMetric('CGT on PPOR conversion','${fmt(B_cgt)}')">?</button></div>
+      <div class="sr"><span>Annual converted-home cash flow</span><span style="color:${B_netCF>=0?'var(--green)':'var(--red2)'};font-weight:500">${fmt(B_netCF)}</span><button class="sr-ask" onclick="askMetric('Annual converted-home cash flow','${fmt(B_netCF)}')">?</button></div>
       <div class="sr"><span>Estimated total wealth</span><span style="font-weight:500">${fmt(B_wealth)}</span></div>
       <div class="snote" style="background:var(--info-bg);color:var(--info-txt)">Partial CGT based on investment-period proportion. New home becomes your PPOR.</div>
     </div>
