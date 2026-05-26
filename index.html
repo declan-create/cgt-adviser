@@ -1,4 +1,4 @@
-<!-- Built: 2026-05-25 03:56:32 -->
+<!-- Built: 2026-05-26 10:01:04 -->
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -132,7 +132,7 @@ body{font-family:system-ui,-apple-system,sans-serif;color:var(--txt);font-size:1
 .adv-header p{color:rgba(255,255,255,.75);font-size:12px;margin:0}
 .adv-history{padding:1rem 1.25rem;display:flex;flex-direction:column;gap:10px;max-height:500px;overflow-y:auto;background:var(--bg2)}
 .adv-msg{display:flex;gap:10px;align-items:flex-start}
-.adv-bub{padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.7;max-width:calc(100% - 42px);white-space:pre-wrap}
+.adv-bub{padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.7;max-width:calc(100% - 42px);white-space:pre-wrap;word-wrap:break-word}
 .adv-bub-ai{background:var(--bg);border:0.5px solid var(--bdr);border-top-left-radius:3px;color:var(--txt)}
 .adv-bub-u{background:var(--red);color:#fff;border-top-right-radius:3px;margin-left:auto}
 .adv-bub-t{background:var(--bg);border:0.5px solid var(--bdr);color:var(--txt2);font-style:italic}
@@ -145,7 +145,7 @@ body{font-family:system-ui,-apple-system,sans-serif;color:var(--txt);font-size:1
 .adv-input-row button{background:var(--red);color:#fff;border:none;border-radius:var(--r);padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer}
 .adv-input-row button:disabled{opacity:.4;cursor:not-allowed}
 .mc{position:relative;padding-right:28px}.mc-ask{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;background:rgba(196,42,42,0.12);border:1.5px solid var(--red);color:var(--red);font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;transition:all .15s}.mc-ask:hover{background:var(--red);color:#fff}
-.eb-rows{display:flex;flex-direction:column;gap:0}.eb-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:0.5px solid var(--bdr);gap:12px}.eb-row:last-child{border-bottom:none}.eb-total{font-weight:600;border-top:1px solid var(--bdr2);padding-top:12px}.eb-label{color:var(--txt2);font-size:13px;line-height:1.5;flex:1}.eb-val{font-size:13px;font-weight:500;text-align:right;line-height:1.5;display:flex;align-items:center;gap:4px;flex-shrink:0}.eb-div{height:1px;background:var(--bdr2);margin:8px 0}
+.eb-rows{display:flex;flex-direction:column;gap:0}.eb-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:0.5px solid var(--bdr);gap:12px}.eb-row:last-child{border-bottom:none}.eb-total{font-weight:600;border-top:1px solid var(--bdr2);padding-top:12px}.eb-label{color:var(--txt2);font-size:13px;line-height:1.5;flex:1}.eb-val{font-size:13px;font-weight:500;text-align:right;line-height:1.5;display:flex;align-items:center;gap:4px;flex-shrink:0}.eb-div{height:1px;background:var(--bdr2);margin:8px 0}.sr-ask{width:16px;height:16px;border-radius:50%;background:rgba(196,42,42,0.12);border:1.5px solid var(--red);color:var(--red);font-size:9px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;margin-left:5px;flex-shrink:0;transition:all .15s}.sr-ask:hover{background:var(--red);color:#fff}
 </style>
 </head>
 <body>
@@ -515,7 +515,7 @@ function askMetric(label, value) {
   var data = Object.entries(D).filter(function(e){return e[1]!==null;}).map(function(e){return e[0]+':'+e[1];}).join(', ');
   var sys = 'You are a CGT calculation explainer. Client data: ' + data + '. Answer in 2-3 plain sentences only. Be specific with the actual numbers from the data. No markdown.';
   callAPI(sys, [{role:'user', content:'In 2-3 sentences, what is ' + label + ' (' + value + ') and the key calculation used?'}], 120)
-    .then(function(t) { var b=document.getElementById('ttBody'); if(b) b.textContent=t; })
+    .then(function(t) { var b=document.getElementById('ttBody'); if(b) b.textContent=t.split('**').join('').split('*').join('').split('`').join('').trim(); })
     .catch(function() { var b=document.getElementById('ttBody'); if(b) b.textContent='Tap below for full step-by-step breakdown.'; });
 }
 
@@ -751,7 +751,12 @@ function buildResults() {
   const advArea = document.getElementById('advHist');
   if (advArea) advArea.innerHTML = '';
   injectAdviserPanel();
-  showAdviser();
+  // Don't auto-show adviser — user triggers it via ? buttons or chips
+  // Just inject it hidden and pre-load the context
+  calcContext = buildAdviserContext();
+  // Show a subtle "Ask the adviser" prompt instead of full panel
+  const advPrompt = document.getElementById('advPrompt');
+  if (advPrompt) advPrompt.style.display = 'block';
 }
 
 function esec(id, title, sub, rows, iid, defQ) {
@@ -1475,7 +1480,15 @@ async function advSend() {
   advHist.push({ role: 'user', content: msg });
 
   try {
-    const text = await callAPI(calcContext, advHist.slice(-20), 800);
+    const raw = await callAPI(calcContext, advHist.slice(-20), 800);
+    // Strip markdown formatting from adviser responses
+    var text = raw;
+    text = text.replace(/^#{1,3} /gm, '');
+    text = text.replace(/\/\*\*/g, '').replace(/\*\*\//g, '');
+    text = text.split('**').join('');
+    text = text.split('*').join('');
+    text = text.split('`').join('');
+    text = text.replace(/^---$/gm, '—').trim();
     advHideT();
     advAddMsg(text, 'ai');
     advHist.push({ role: 'assistant', content: text });
@@ -1496,12 +1509,16 @@ function showAdviser() {
   calcContext = buildAdviserContext();
   const panel = document.getElementById('advPanel');
   panel.classList.add('visible');
-  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Only scroll if panel is not already visible in viewport
+  const rect = panel.getBoundingClientRect();
+  if (rect.top > window.innerHeight || rect.bottom < 0) {
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   // Opening message from the adviser
   const area = document.getElementById('advHist');
   if (area.children.length === 0) {
-    advAddMsg("I have reviewed the full analysis and all the underlying calculations. Ask me anything — what a specific number means, how it was calculated, the tax law that applies, whether an assumption is reasonable, or what would change if your numbers were different.", 'ai');
+    advAddMsg("I've reviewed the full analysis. Ask me about any number, calculation, tax law, or what would change if your assumptions were different.", 'ai');
   }
 
   // Scenario-specific suggested questions
@@ -1526,6 +1543,13 @@ function showAdviser() {
 function injectAdviserPanel() {
   const existing = document.getElementById('advPanel');
   if (existing) return;
+  // Add subtle prompt button
+  const prompt = document.createElement('div');
+  prompt.id = 'advPrompt';
+  prompt.style.cssText = 'display:none;margin-top:.75rem;text-align:center';
+  prompt.innerHTML = '<button id="advPromptBtn" style="background:var(--bg);border:1px solid var(--red);color:var(--red);border-radius:999px;padding:8px 20px;font-size:13px;font-weight:500;cursor:pointer"><i class=\"ti ti-message-circle\" style=\"font-size:14px;margin-right:6px\"></i>Ask the adviser a question ↓</button>';
+  document.getElementById('advPromptBtn').onclick = function() { showAdviser(); prompt.style.display='none'; };
+  document.getElementById('rw').after(prompt);
   const panel = document.createElement('div');
   panel.id = 'advPanel';
   panel.innerHTML = `
