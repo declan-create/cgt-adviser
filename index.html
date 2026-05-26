@@ -1,4 +1,4 @@
-<!-- Built: 2026-05-26 10:01:04 -->
+<!-- Built: 2026-05-26 10:27:04 -->
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -199,8 +199,8 @@ body{font-family:system-ui,-apple-system,sans-serif;color:var(--txt);font-size:1
 // ─── STATE ───────────────────────────────────────────────────────────────────
 
 let hist = [], stage = 'intake', tel = null;
-const D = {scenarioType:null,assetUse:null,heldBefore:null,heldYears:null,costBase:null,currentValue:null,transitionValue:null,futureValue:null,ownerPct:null,mtr:null,expectedGrowth:null,yearsHorizon:null,loanBalance:null,interestRate:null,annualIncome:null,annualExpenses:null,newPropPrice:null,newPropLoan:null,newPropRent:null,newPropExpenses:null,pporConvertRent:null,pporConvertExp:null,inflationRate:null,yearsToReform:null,yearsAfterReform:null,existingPortfolioIncome:null};
-const DL = {scenarioType:'Scenario',existingPortfolioIncome:'Existing portfolio net income',assetUse:'Asset use',heldBefore:'Held before Budget?',heldYears:'Years held',costBase:'Cost base',currentValue:'Current value',transitionValue:'1 Jul 2027 value',futureValue:'Future sale value',ownerPct:'Ownership %',mtr:'Tax rate',expectedGrowth:'Growth %',yearsHorizon:'Horizon (yr)',loanBalance:'Loan balance',interestRate:'Interest rate',annualIncome:'Annual income',annualExpenses:'Annual expenses',newPropPrice:'New prop price',newPropLoan:'New prop loan',newPropRent:'New prop rent',newPropExpenses:'New prop expenses',pporConvertRent:'PPOR rent',pporConvertExp:'PPOR expenses',inflationRate:'Inflation',yearsToReform:'Yrs to reform',yearsAfterReform:'Yrs after reform'};
+const D = {scenarioType:null,assetUse:null,heldBefore:null,heldYears:null,costBase:null,currentValue:null,transitionValue:null,futureValue:null,ownerPct:null,mtr:null,expectedGrowth:null,yearsHorizon:null,loanBalance:null,interestRate:null,annualIncome:null,annualExpenses:null,newPropPrice:null,newPropLoan:null,newPropRent:null,newPropExpenses:null,pporConvertRent:null,pporConvertExp:null,inflationRate:null,yearsToReform:null,yearsAfterReform:null,existingPortfolioIncome:null,state:null,ownershipStatus:null};
+const DL = {scenarioType:'Scenario',existingPortfolioIncome:'Existing portfolio net income',state:'State',ownershipStatus:'Ownership status',assetUse:'Asset use',heldBefore:'Held before Budget?',heldYears:'Years held',costBase:'Cost base',currentValue:'Current value',transitionValue:'1 Jul 2027 value',futureValue:'Future sale value',ownerPct:'Ownership %',mtr:'Tax rate',expectedGrowth:'Growth %',yearsHorizon:'Horizon (yr)',loanBalance:'Loan balance',interestRate:'Interest rate',annualIncome:'Annual income',annualExpenses:'Annual expenses',newPropPrice:'New prop price',newPropLoan:'New prop loan',newPropRent:'New prop rent',newPropExpenses:'New prop expenses',pporConvertRent:'PPOR rent',pporConvertExp:'PPOR expenses',inflationRate:'Inflation',yearsToReform:'Yrs to reform',yearsAfterReform:'Yrs after reform'};
 
 // ─── KEY GATE ─────────────────────────────────────────────────────────────────
 
@@ -349,6 +349,18 @@ async function callAI(userMsg) {
 CURRENT DATA: ${filled}
 DETECTED SCENARIO: ${D.scenarioType || 'not yet determined'}
 
+STEP 0 — ESTABLISH CONTEXT (if not already known):
+Before or alongside scenario detection, establish:
+(a) What STATE is the property in? (NSW, VIC, QLD, WA, SA, TAS, ACT, NT) → __SET_state:NSW__
+(b) What is their OWNERSHIP STATUS?
+    - "I don't own any property" → first_home_buyer or buy scenario
+    - "I own my home (PPOR only)" → ppor_convert or valuation
+    - "I own investment properties" → hold_or_sell, sell_before/after, valuation
+    - "I own both PPOR and investments" → could be any scenario
+    → __SET_ownershipStatus:ppor_only__ or __SET_ownershipStatus:investor__ or __SET_ownershipStatus:both__ or __SET_ownershipStatus:none__
+If the state is mentioned anywhere (e.g. "my Sydney property", "Melbourne unit", "Brisbane house") extract it immediately.
+If multiple properties in different states, use the state of the property being discussed.
+
 STEP 1 — DETECT SCENARIO IMMEDIATELY from first message:
 - Client owns a home they LIVE IN + mentions buying another property = ppor_convert (MOST COMMON)
 - Client has an INVESTMENT PROPERTY and deciding whether to keep or sell = hold_or_sell  
@@ -452,7 +464,7 @@ async function init() {
     placeholder.innerHTML = '<div class="av av-ai">AI</div><div class="bub bub-t" id="initPlaceholder">Connecting...</div>';
     area.appendChild(placeholder);
   }
-  const sys = `You are an Australian Budget CGT property adviser starting a session. In exactly 2 sentences: (1) a warm welcome, (2) an open question asking what property decision they need help with. Mention you handle selling, buying, PPOR conversion, valuations, structures. Australian English. Be natural, not corporate.`;
+  const sys = `You are an Australian Budget CGT property adviser. Write ONLY 2 sentences, maximum 25 words total. Sentence 1: welcome in 5 words or fewer. Sentence 2: ask what property decision they need help with — mention selling, buying, PPOR, valuations. No exclamation marks. No adjectives. No corporate language. Example: 'G'day, welcome. What property decision can I help you with — selling, buying, PPOR conversion, or a valuation?'`;
   try {
     const text = await callAPI(sys, [{ role: 'user', content: 'start' }], 150);
     hideT();
@@ -470,7 +482,7 @@ async function init() {
       area.appendChild(w);
     }
   }
-  setQP(['Should I sell before July 2027?','Buy investment or convert my PPOR?','Do I need a 1 July 2027 valuation?','First home buyer questions','Trust or loan structure review','Buy new build vs established?']);
+  setQP(['Should I sell before July 2027?','Should I sell after July 2027?','Hold or sell my investment property?','Buy investment or convert my PPOR?','Buy new build vs established?','Should I buy now or wait?','First home buyer questions','Do I need a 1 July 2027 valuation?','Loan or structure review']);
   $('sb').disabled = false;
 }
 
@@ -486,44 +498,131 @@ function restart() {
 
 // ─── RESULTS ENGINE ───────────────────────────────────────────────────────────
 function askMetric(label, value) {
-  var ex = document.getElementById('metricTooltip');
+  // Remove existing modal
+  var ex = document.getElementById('metricModal');
   if (ex) ex.remove();
-  var tt = document.createElement('div');
-  tt.id = 'metricTooltip';
-  tt.style.cssText = 'position:fixed;bottom:20px;right:20px;width:300px;max-width:88vw;background:var(--bg);border:1px solid var(--bdr2);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.2);z-index:9999;overflow:hidden';
-  tt.innerHTML = '<div style="background:var(--red);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">'
-    + '<div style="color:#fff;font-size:13px;font-weight:500">' + label + ': <strong>' + value + '</strong></div>'
-    + '<button id="ttClose" style="background:none;border:none;color:rgba(255,255,255,0.8);cursor:pointer;font-size:20px;line-height:1;padding:0 0 0 10px">×</button>'
-    + '</div>'
-    + '<div id="ttBody" style="padding:12px 14px;font-size:13px;color:var(--txt);line-height:1.65;min-height:50px">Calculating...</div>'
-    + '<div style="padding:8px 14px;border-top:0.5px solid var(--bdr);background:var(--bg2)">'
-    + '<button id="ttDeep" style="background:var(--red);color:#fff;border:none;border-radius:6px;padding:7px 12px;font-size:12px;cursor:pointer;width:100%;font-weight:500">Full step-by-step explanation ↗</button>'
-    + '</div>';
-  document.body.appendChild(tt);
-  document.getElementById('ttClose').onclick = function() { tt.remove(); };
-  document.getElementById('ttDeep').onclick = function() {
-    tt.remove();
+
+  // Create overlay
+  var overlay = document.createElement('div');
+  overlay.id = 'metricModal';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9998;display:flex;align-items:center;justify-content:center;padding:1rem';
+  overlay.onclick = function(e) { if(e.target===overlay) overlay.remove(); };
+
+  // Create panel
+  var panel = document.createElement('div');
+  panel.style.cssText = 'background:var(--bg);border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,0.25);width:100%;max-width:480px;overflow:hidden';
+
+  // Header
+  var hdr = document.createElement('div');
+  hdr.style.cssText = 'background:var(--red);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px';
+  hdr.innerHTML = '<div><div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.65);margin-bottom:2px">Figure explanation</div><div style="font-size:16px;font-weight:600;color:#fff">' + label + '</div><div style="font-size:20px;font-weight:700;color:rgba(255,255,255,0.9);margin-top:1px">' + value + '</div></div><button id="mmClose" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:28px;height:28px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">×</button>';
+
+  // Body - shows loading then explanation
+  var body = document.createElement('div');
+  body.id = 'mmBody';
+  body.style.cssText = 'padding:1rem 1.25rem;min-height:80px;font-size:13px;color:var(--txt);line-height:1.65';
+  body.innerHTML = '<div style="color:var(--txt2);font-style:italic">Calculating explanation...</div>';
+
+  // Footer
+  var footer = document.createElement('div');
+  footer.style.cssText = 'padding:.75rem 1.25rem;border-top:0.5px solid var(--bdr);background:var(--bg2);display:flex;gap:8px';
+  footer.innerHTML = '<button id="mmDeep" style="flex:1;background:var(--red);color:#fff;border:none;border-radius:var(--r);padding:9px 14px;font-size:13px;font-weight:500;cursor:pointer">Full step-by-step in adviser ↗</button><button id="mmDismiss" style="background:var(--bg);color:var(--txt2);border:0.5px solid var(--bdr2);border-radius:var(--r);padding:9px 14px;font-size:13px;cursor:pointer">Close</button>';
+
+  panel.appendChild(hdr);
+  panel.appendChild(body);
+  panel.appendChild(footer);
+  overlay.appendChild(panel);
+  document.body.appendChild(overlay);
+
+  document.getElementById('mmClose').onclick = function() { overlay.remove(); };
+  document.getElementById('mmDismiss').onclick = function() { overlay.remove(); };
+  document.getElementById('mmDeep').onclick = function() {
+    overlay.remove();
     showAdviser();
     setTimeout(function() {
       var inp = document.getElementById('advIn');
       if (inp) {
-        inp.value = 'Walk me through every step of how ' + label + ' (' + value + ') was calculated, using the exact numbers from my analysis';
+        inp.value = 'Walk me through every step of how ' + label + ' (' + value + ') was calculated, using the exact numbers from my analysis. Show it as a step-by-step calculation.';
         advSend();
       }
     }, 300);
   };
+
+  // Fetch explanation
   var data = Object.entries(D).filter(function(e){return e[1]!==null;}).map(function(e){return e[0]+':'+e[1];}).join(', ');
-  var sys = 'You are a CGT calculation explainer. Client data: ' + data + '. Answer in 2-3 plain sentences only. Be specific with the actual numbers from the data. No markdown.';
-  callAPI(sys, [{role:'user', content:'In 2-3 sentences, what is ' + label + ' (' + value + ') and the key calculation used?'}], 120)
-    .then(function(t) { var b=document.getElementById('ttBody'); if(b) b.textContent=t.split('**').join('').split('*').join('').split('`').join('').trim(); })
-    .catch(function() { var b=document.getElementById('ttBody'); if(b) b.textContent='Tap below for full step-by-step breakdown.'; });
+  var sys = 'CGT explainer. Data: ' + data + '. Reply with exactly 3 lines: WHAT IT IS: [what this figure represents in one sentence] HOW CALCULATED: [formula with actual numbers] KEY ASSUMPTION: [main assumption used]';
+  callAPI(sys, [{role:'user', content:'Explain ' + label + ' (' + value + ')'}], 200)
+    .then(function(t) {
+      var b = document.getElementById('mmBody');
+      if (!b) return;
+      // Parse the structured response into a table
+      // Parse structured response - split on key labels
+      var text = t.replace(/\n/g,' ');
+      var lines = [];
+      ['WHAT IT IS','HOW CALCULATED','KEY ASSUMPTION'].forEach(function(key) {
+        var idx = text.indexOf(key+':');
+        if (idx >= 0) {
+          var nextKeys = ['WHAT IT IS','HOW CALCULATED','KEY ASSUMPTION'].filter(function(k){return k!==key;});
+          var endIdx = text.length;
+          nextKeys.forEach(function(k){ var ni=text.indexOf(k+':',idx+1); if(ni>0&&ni<endIdx) endIdx=ni; });
+          lines.push(key + ':' + text.substring(idx+key.length+1, endIdx).trim());
+        }
+      });
+      var html = '<table style="width:100%;border-collapse:collapse">';
+      lines.forEach(function(line) {
+        var parts = line.split(':');
+        if (parts.length >= 2) {
+          var key = parts[0].trim();
+          var val = parts.slice(1).join(':').trim();
+          html += '<tr><td style="padding:8px 10px 8px 0;color:var(--txt2);font-size:12px;font-weight:500;vertical-align:top;width:38%;border-bottom:0.5px solid var(--bdr)">' + key + '</td><td style="padding:8px 0 8px 10px;font-size:13px;vertical-align:top;border-bottom:0.5px solid var(--bdr)">' + val + '</td></tr>';
+        }
+      });
+      html += '</table>';
+      b.innerHTML = html;
+    })
+    .catch(function() {
+      var b = document.getElementById('mmBody');
+      if (b) b.innerHTML = '<div style="color:var(--txt2)">Use the full step-by-step explanation below for a detailed breakdown.</div>';
+    });
 }
 
+
+
+// ─── STATE STAMP DUTY RATES ───────────────────────────────────────────────────
+function getStampDutyRate(state, price) {
+  // Approximate rates for investment properties (non-FHB)
+  const s = (state||'').toUpperCase().replace('ACT','ACT').trim();
+  if (s==='NSW') {
+    // NSW: progressive - roughly 4% on $500k-$1m, 4.5% above $1m
+    return price > 1000000 ? 0.055 : price > 500000 ? 0.045 : 0.04;
+  }
+  if (s==='VIC') return price > 960000 ? 0.065 : 0.055;
+  if (s==='QLD') return price > 1000000 ? 0.045 : 0.038;
+  if (s==='WA') return price > 725000 ? 0.051 : 0.04;
+  if (s==='SA') return 0.04;
+  if (s==='TAS') return 0.04;
+  if (s==='ACT') return price > 1500000 ? 0.055 : 0.045;
+  if (s==='NT') return 0.049;
+  return 0.04; // default if unknown
+}
+
+function getFHBStampDutyNote(state, price) {
+  const s = (state||'').toUpperCase().trim();
+  if (s==='NSW') return price <= 800000 ? 'NSW FHB: full stamp duty exemption up to $800k' : price <= 1000000 ? 'NSW FHB: concessional rate $800k-$1m' : 'NSW FHB: no concession above $1m';
+  if (s==='VIC') return price <= 600000 ? 'VIC FHB: full stamp duty exemption up to $600k' : price <= 750000 ? 'VIC FHB: concessional rate $600k-$750k' : 'VIC FHB: no concession above $750k';
+  if (s==='QLD') return price <= 550000 ? 'QLD FHB: full stamp duty exemption up to $550k' : 'QLD FHB: no concession above $550k';
+  if (s==='WA') return price <= 430000 ? 'WA FHB: full stamp duty exemption up to $430k' : 'WA FHB: concessional rate up to $530k';
+  if (s==='SA') return 'SA: no FHB stamp duty concession — check current state grants';
+  if (s==='TAS') return 'TAS FHB: 50% stamp duty concession on new homes';
+  if (s==='ACT') return 'ACT FHB: no stamp duty on first home purchases';
+  return 'Check your state government website for current FHB stamp duty concessions';
+}
 
 // ─── ASSUMPTIONS PANEL ───────────────────────────────────────────────────────
 function showAssumptionsPanel() {
   const rw = $('rw');
   rw.classList.remove('hidden');
+  rw.innerHTML = ''; // Clear any previous content
 
   // Determine yield defaults based on scenario
   const sc = D.scenarioType || 'hold_or_sell';
@@ -546,11 +645,14 @@ function showAssumptionsPanel() {
         ${buildAssumptionSliders()}
       </div>
       <div style="padding:1rem 1.25rem;border-top:0.5px solid var(--bdr);background:var(--bg2);display:flex;gap:10px;align-items:center">
-        <button onclick="runFromAssumptions()" style="background:var(--red);color:#fff;border:none;border-radius:var(--r);padding:10px 24px;font-size:14px;font-weight:500;cursor:pointer">Run Analysis →</button>
+        <button id="runAnalysisBtn" style="background:var(--red);color:#fff;border:none;border-radius:var(--r);padding:10px 24px;font-size:14px;font-weight:500;cursor:pointer">Run Analysis →</button>
         <span style="font-size:12px;color:var(--txt2)">All figures can be changed after seeing the results too</span>
       </div>
     </div>`;
 
+  // Assign onclick after DOM is ready
+  var runBtn = document.getElementById('runAnalysisBtn');
+  if (runBtn) runBtn.onclick = function() { runFromAssumptions(); };
   rw.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -1028,7 +1130,7 @@ function buildBuyEstablished() {
   const price=n(D.newPropPrice),loan=n(D.newPropLoan)||price*0.8,mtr=n(D.mtr)/100||0.47;
   const rent=n(D.newPropRent)||price*0.04,rate=n(D.interestRate)||6.2;
   const exp=n(D.newPropExpenses)||(rent*0.10);
-  const gr=n(D.expectedGrowth)||4.5,yrs=n(D.yearsHorizon)||7,sc=0.025,sd=0.04;
+  const gr=n(D.expectedGrowth)||4.5,yrs=n(D.yearsHorizon)||7,sc=0.025,sd=getStampDutyRate(D.state,price);
   const existingInc=n(D.existingPortfolioIncome)||0;
   const annCF=rent-exp-(loan*rate/100);
   // POST-BUDGET: NO negative gearing against salary for new established purchases (from 13 May 2026)
@@ -1193,13 +1295,13 @@ function buildFirstHome() {
   <div class="mg">
     <div class="mc"><div class="ml">Purchase price</div><div class="mv neu">${fmt(price)}</div><button class="mc-ask" onclick="askMetric('Purchase price','${fmt(price)}')" title="Ask about this number">?</button></div>
     <div class="mc"><div class="ml">Est. monthly repayment</div><div class="mv neu">${fmt(monthly)}</div><button class="mc-ask" onclick="askMetric('Est. monthly repayment','${fmt(monthly)}')" title="Ask about this number">?</button></div>
-    <div class="mc"><div class="ml">Stamp duty (est.)</div><div class="mv neg">${fmt(price*0.04)}</div><button class="mc-ask" onclick="askMetric('Stamp duty (est.)','${fmt(price*0.04)}')" title="Ask about this number">?</button></div>
+    <div class="mc"><div class="ml">Stamp duty (${D.state||'est.'})</div><div class="mv neg">${fmt(price*getStampDutyRate(D.state,price))}</div><button class="mc-ask" onclick="askMetric('Stamp duty (est.)','${fmt(price*0.04)}')" title="Ask about this number">?</button></div>
     <div class="mc"><div class="ml">Value in 10 years</div><div class="mv pos">${fmt(fv(price,gr,10))}</div><button class="mc-ask" onclick="askMetric('Value in 10 years','${fmt(fv(price,gr,10))}')" title="Ask about this number">?</button></div>
     <div class="mc"><div class="ml">CGT if you sell as PPOR</div><div class="mv pos">$0</div><button class="mc-ask" onclick="askMetric('CGT if you sell as PPOR','$0')" title="Ask about this number">?</button></div>
     <div class="mc"><div class="ml">FHO Grant</div><div class="mv neu">State dependent</div><button class="mc-ask" onclick="askMetric('FHO Grant','State dependent')" title="Ask about this number">?</button></div>
   </div>
   ${esec('fhb-budget','Budget changes relevant to first home buyers','Several 2026 Budget measures affect housing affordability',
-    [['Your PPOR exemption','Fully CGT exempt — Budget changes do not affect this at all'],['First Home Guarantee','Government guarantees up to 15% of deposit — check current eligibility'],['Help to Buy scheme','Shared equity scheme — check current status and eligibility criteria'],['Stamp duty concessions','Check your state for first home buyer exemptions and concessions'],['Investor competition','New CGT rules may reduce investor competition for established properties'],['New build market','Budget encourages new supply — opportunities may exist in the new build market']],'fhb-q','What grants and schemes are available to me?')}
+    [['Your PPOR exemption','Fully CGT exempt — Budget changes do not affect this at all'],['First Home Guarantee','Government guarantees up to 15% of deposit — check current eligibility'],['Help to Buy scheme','Shared equity scheme — check current status and eligibility criteria'],['Stamp duty ('+( D.state||'your state')+')',getFHBStampDutyNote(D.state,price)],['Investor competition','New CGT rules may reduce investor competition for established properties'],['New build market','Budget encourages new supply — opportunities may exist in the new build market']],'fhb-q','What grants and schemes are available to me?')}
   ${ns(['Check state-specific first home buyer grants and stamp duty concessions — NSW may exempt or discount stamp duty at $800k','Get a mortgage pre-approval to confirm your budget','Buy new build for long-term tax advantage if you plan to convert to rental later','Get a formal valuation when you convert to rental — locks in CGT cost base at actual market value, not a modelled assumption','Speak to a conveyancer about all upfront costs before committing'])}
   ${disc()}`;
 }
@@ -1548,8 +1650,10 @@ function injectAdviserPanel() {
   prompt.id = 'advPrompt';
   prompt.style.cssText = 'display:none;margin-top:.75rem;text-align:center';
   prompt.innerHTML = '<button id="advPromptBtn" style="background:var(--bg);border:1px solid var(--red);color:var(--red);border-radius:999px;padding:8px 20px;font-size:13px;font-weight:500;cursor:pointer"><i class=\"ti ti-message-circle\" style=\"font-size:14px;margin-right:6px\"></i>Ask the adviser a question ↓</button>';
-  document.getElementById('advPromptBtn').onclick = function() { showAdviser(); prompt.style.display='none'; };
   document.getElementById('rw').after(prompt);
+  // Must append to DOM BEFORE getElementById can find advPromptBtn
+  var pb = document.getElementById('advPromptBtn');
+  if (pb) pb.onclick = function() { showAdviser(); prompt.style.display='none'; };
   const panel = document.createElement('div');
   panel.id = 'advPanel';
   panel.innerHTML = `
