@@ -1,4 +1,4 @@
-<!-- Built: 2026-05-26 10:27:04 -->
+<!-- Built: 2026-05-26 10:48:30 -->
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -199,8 +199,8 @@ body{font-family:system-ui,-apple-system,sans-serif;color:var(--txt);font-size:1
 // ─── STATE ───────────────────────────────────────────────────────────────────
 
 let hist = [], stage = 'intake', tel = null;
-const D = {scenarioType:null,assetUse:null,heldBefore:null,heldYears:null,costBase:null,currentValue:null,transitionValue:null,futureValue:null,ownerPct:null,mtr:null,expectedGrowth:null,yearsHorizon:null,loanBalance:null,interestRate:null,annualIncome:null,annualExpenses:null,newPropPrice:null,newPropLoan:null,newPropRent:null,newPropExpenses:null,pporConvertRent:null,pporConvertExp:null,inflationRate:null,yearsToReform:null,yearsAfterReform:null,existingPortfolioIncome:null,state:null,ownershipStatus:null};
-const DL = {scenarioType:'Scenario',existingPortfolioIncome:'Existing portfolio net income',state:'State',ownershipStatus:'Ownership status',assetUse:'Asset use',heldBefore:'Held before Budget?',heldYears:'Years held',costBase:'Cost base',currentValue:'Current value',transitionValue:'1 Jul 2027 value',futureValue:'Future sale value',ownerPct:'Ownership %',mtr:'Tax rate',expectedGrowth:'Growth %',yearsHorizon:'Horizon (yr)',loanBalance:'Loan balance',interestRate:'Interest rate',annualIncome:'Annual income',annualExpenses:'Annual expenses',newPropPrice:'New prop price',newPropLoan:'New prop loan',newPropRent:'New prop rent',newPropExpenses:'New prop expenses',pporConvertRent:'PPOR rent',pporConvertExp:'PPOR expenses',inflationRate:'Inflation',yearsToReform:'Yrs to reform',yearsAfterReform:'Yrs after reform'};
+const D = {scenarioType:null,assetUse:null,heldBefore:null,heldYears:null,costBase:null,currentValue:null,transitionValue:null,futureValue:null,ownerPct:null,mtr:null,expectedGrowth:null,yearsHorizon:null,loanBalance:null,interestRate:null,annualIncome:null,annualExpenses:null,newPropPrice:null,newPropLoan:null,newPropRent:null,newPropExpenses:null,pporConvertRent:null,pporConvertExp:null,inflationRate:null,yearsToReform:null,yearsAfterReform:null,existingPortfolioIncome:null,state:null,newPropState:null,ownershipStatus:null};
+const DL = {scenarioType:'Scenario',existingPortfolioIncome:'Existing portfolio net income',state:'Current prop state',newPropState:'New prop state',ownershipStatus:'Ownership status',assetUse:'Asset use',heldBefore:'Held before Budget?',heldYears:'Years held',costBase:'Cost base',currentValue:'Current value',transitionValue:'1 Jul 2027 value',futureValue:'Future sale value',ownerPct:'Ownership %',mtr:'Tax rate',expectedGrowth:'Growth %',yearsHorizon:'Horizon (yr)',loanBalance:'Loan balance',interestRate:'Interest rate',annualIncome:'Annual income',annualExpenses:'Annual expenses',newPropPrice:'New prop price',newPropLoan:'New prop loan',newPropRent:'New prop rent',newPropExpenses:'New prop expenses',pporConvertRent:'PPOR rent',pporConvertExp:'PPOR expenses',inflationRate:'Inflation',yearsToReform:'Yrs to reform',yearsAfterReform:'Yrs after reform'};
 
 // ─── KEY GATE ─────────────────────────────────────────────────────────────────
 
@@ -351,15 +351,18 @@ DETECTED SCENARIO: ${D.scenarioType || 'not yet determined'}
 
 STEP 0 — ESTABLISH CONTEXT (if not already known):
 Before or alongside scenario detection, establish:
-(a) What STATE is the property in? (NSW, VIC, QLD, WA, SA, TAS, ACT, NT) → __SET_state:NSW__
-(b) What is their OWNERSHIP STATUS?
+(a) What STATE is the CURRENT property in? (NSW, VIC, QLD, WA, SA, TAS, ACT, NT) → __SET_state:NSW__
+(b) If buying or converting — what STATE is the NEW property in? May be different from current property.
+    → __SET_newPropState:QLD__ (ask explicitly if not mentioned — "and what state is the new property in?")
+    → Properties can be in DIFFERENT states — stamp duty, land tax, and grants vary significantly
+(c) What is their OWNERSHIP STATUS?
     - "I don't own any property" → first_home_buyer or buy scenario
     - "I own my home (PPOR only)" → ppor_convert or valuation
     - "I own investment properties" → hold_or_sell, sell_before/after, valuation
     - "I own both PPOR and investments" → could be any scenario
     → __SET_ownershipStatus:ppor_only__ or __SET_ownershipStatus:investor__ or __SET_ownershipStatus:both__ or __SET_ownershipStatus:none__
-If the state is mentioned anywhere (e.g. "my Sydney property", "Melbourne unit", "Brisbane house") extract it immediately.
-If multiple properties in different states, use the state of the property being discussed.
+If states are mentioned anywhere (e.g. "my Sydney property", "buying in Brisbane") extract immediately.
+ALWAYS ask for new property state separately — never assume it matches the current property state.
 
 STEP 1 — DETECT SCENARIO IMMEDIATELY from first message:
 - Client owns a home they LIVE IN + mentions buying another property = ppor_convert (MOST COMMON)
@@ -386,7 +389,7 @@ STEP 2 — COLLECT DATA EFFICIENTLY (max 3-4 questions total):
 For ppor_convert ask in order: (1) current home value + what they paid + how long held, (2) budget for the NEW property they want to buy (this is newPropPrice — the investment or new home) + existing loan on current home (loanBalance), (3) how they plan to fund the new purchase — new borrowing only, equity release, combination, or full purchase price + stamp duty borrowed (this determines newPropLoan: if full purchase + stamp → newPropPrice*1.04, if 80% LVR → newPropPrice*0.8), (4) income/tax bracket. Then go to STEP 3.
 For hold_or_sell ask: (1) what is driving the decision — Budget/CGT reform, cash flow pressure, life change, portfolio rebalance, or general review (this is context only, does not change the analysis), (2) property value + cost base + how long held, (3) ACTUAL weekly or annual rent + loan balance + interest only or P&I, (4) ownership — one name or joint 50/50 + income/tax rate. Then go to STEP 3.
 For sell_before_reform and sell_after_reform: same questions as hold_or_sell. Then go to STEP 3.
-For buy scenarios ask: (1) new build or established property? (this is CRITICAL — determines CGT treatment, routes to buy_new_build or buy_established), (2) purchase price + location if mentioned (search for local growth data), (3) actual expected weekly rent OR use market data if available, (4) loan situation — LVR or equity release + existing portfolio: do they have other investment properties? are those positively or negatively geared? what is net existing rental income/loss?, (5) income/tax rate. Then go to STEP 3.
+For buy scenarios ask: (1) new build or established property? (2) what STATE is the new property in? → __SET_newPropState:VIC__ — ask this explicitly as it affects stamp duty and land tax (this is CRITICAL — determines CGT treatment, routes to buy_new_build or buy_established), (2) purchase price + location if mentioned (search for local growth data), (3) actual expected weekly rent OR use market data if available, (4) loan situation — LVR or equity release + existing portfolio: do they have other investment properties? are those positively or negatively geared? what is net existing rental income/loss?, (5) income/tax rate. Then go to STEP 3.
 NOTE: if new build → __SET_scenarioType:buy_new_build__, if established → __SET_scenarioType:buy_established__
 For valuation ask: (1) is the property currently rented out or are they considering it in future? (2) current value + original purchase price, (3) how long held. Then go to STEP 3.
 URGENCY FRAMING for valuation:
@@ -550,7 +553,23 @@ function askMetric(label, value) {
 
   // Fetch explanation
   var data = Object.entries(D).filter(function(e){return e[1]!==null;}).map(function(e){return e[0]+':'+e[1];}).join(', ');
-  var sys = 'CGT explainer. Data: ' + data + '. Reply with exactly 3 lines: WHAT IT IS: [what this figure represents in one sentence] HOW CALCULATED: [formula with actual numbers] KEY ASSUMPTION: [main assumption used]';
+  // Build rich context including scenario and both options
+  var scenario = D.scenarioType || 'unknown';
+  var curVal = D.currentValue || 0;
+  var newPrice = D.newPropPrice || 0;
+  var curLoan = D.loanBalance || 0;
+  var newLoan = D.newPropLoan || newPrice*0.8;
+  var mtrPct = (D.mtr || 47);
+  var rate = D.interestRate || 6.2;
+  var nRent = D.newPropRent || newPrice*0.04;
+  var pRent = D.pporConvertRent || curVal*0.035;
+  var context = 'Scenario: ' + scenario + '. ';
+  if (scenario === 'ppor_convert') {
+    context += 'OPTION A = Keep current home as PPOR ($' + Math.round(curVal/1000) + 'k, $0 CGT) + buy NEW investment property ($' + Math.round(newPrice/1000) + 'k, loan $' + Math.round(newLoan/1000) + 'k, rent $' + Math.round(nRent/1000) + 'k/yr). ';
+    context += 'OPTION B = Convert current home ($' + Math.round(curVal/1000) + 'k, loan $' + Math.round(curLoan/1000) + 'k, rent $' + Math.round(pRent/1000) + 'k/yr) to investment + buy NEW home ($' + Math.round(newPrice/1000) + 'k). ';
+    context += 'The figure "' + label + '" (' + value + ') belongs to the OPTION shown on its card. ';
+  }
+  var sys = 'CGT calculation explainer. ' + context + 'Client data: ' + data + '. The figure being explained is: ' + label + ' = ' + value + '. Reply with exactly 3 lines only: WHAT IT IS: [one sentence - be specific about which property/option this figure relates to] HOW CALCULATED: [formula with actual numbers from the correct option] KEY ASSUMPTION: [main assumption]';
   callAPI(sys, [{role:'user', content:'Explain ' + label + ' (' + value + ')'}], 200)
     .then(function(t) {
       var b = document.getElementById('mmBody');
@@ -1043,13 +1062,15 @@ function buildHoldOrSell() {
 function buildPPORConvert() {
   const curVal=n(D.currentValue),curLoan=n(D.loanBalance);
   const curCostProvided=!!D.costBase,curCost=n(D.costBase)||curVal*0.6;
-  const newPrice=n(D.newPropPrice),newLoan=n(D.newPropLoan)||newPrice*0.8;
+  const newPrice=n(D.newPropPrice);
+  const newLoan=n(D.newPropLoan)||newPrice*(1+(getStampDutyRate(D.newPropState||D.state,newPrice)||0.04));
   const mtr=n(D.mtr)/100||0.47,rate=n(D.interestRate)||6.2,gr=n(D.expectedGrowth)||4.5,yrs=n(D.yearsHorizon)||7;
   const pRent=n(D.pporConvertRent)||curVal*0.035;
   const pExp=n(D.pporConvertExp)||(pRent*0.10);
   const nRent=n(D.newPropRent)||newPrice*0.04;
   const nExp=n(D.newPropExpenses)||(nRent*0.10);
   const sc=0.025,heldYrs=n(D.heldYears)||5;
+  const newSd=getStampDutyRate(D.newPropState||D.state,newPrice);
   const futCur=fv(curVal,gr,yrs),futNew=fv(newPrice,gr,yrs);
   const A_CF=nRent-nExp-(newLoan*rate/100),A_netCF=A_CF+(A_CF<0?Math.abs(A_CF)*mtr:0);
   const A_future=futNew*(1-sc),A_inflAdj=fv(newPrice,2.5,yrs),A_postGain=Math.max(0,A_future-A_inflAdj);
@@ -1130,7 +1151,7 @@ function buildBuyEstablished() {
   const price=n(D.newPropPrice),loan=n(D.newPropLoan)||price*0.8,mtr=n(D.mtr)/100||0.47;
   const rent=n(D.newPropRent)||price*0.04,rate=n(D.interestRate)||6.2;
   const exp=n(D.newPropExpenses)||(rent*0.10);
-  const gr=n(D.expectedGrowth)||4.5,yrs=n(D.yearsHorizon)||7,sc=0.025,sd=getStampDutyRate(D.state,price);
+  const gr=n(D.expectedGrowth)||4.5,yrs=n(D.yearsHorizon)||7,sc=0.025,sd=getStampDutyRate(D.newPropState||D.state,price);
   const existingInc=n(D.existingPortfolioIncome)||0;
   const annCF=rent-exp-(loan*rate/100);
   // POST-BUDGET: NO negative gearing against salary for new established purchases (from 13 May 2026)
@@ -1424,7 +1445,8 @@ function buildAdviserContext() {
     const exp=n(D.annualExpenses)||(inc>0?inc*0.10:8000);
     const gr=n(D.expectedGrowth)||4.5,yrs=n(D.yearsHorizon)||7,sc2=0.025;
     const yrTo=n(D.yearsToReform)||1,yrAft=n(D.yearsAfterReform)||3;
-    const newPrice=n(D.newPropPrice),newLoan=n(D.newPropLoan)||newPrice*0.8;
+    const newPrice=n(D.newPropPrice);
+  const newLoan=n(D.newPropLoan)||newPrice*(1+(getStampDutyRate(D.newPropState||D.state,newPrice)||0.04));
     const newRent=n(D.newPropRent),newExp=n(D.newPropExpenses)||(newRent>0?newRent*0.10:8000);
     const heldYrs=n(D.heldYears)||5;
 
