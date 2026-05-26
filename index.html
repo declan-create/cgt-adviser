@@ -1,4 +1,4 @@
-<!-- Built: 2026-05-26 10:48:30 -->
+<!-- Built: 2026-05-26 11:06:06 -->
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -386,7 +386,16 @@ CRITICAL SCENARIO RULES — read every line before setting scenarioType:
 - NEVER leave scenarioType unset — always set it in the FIRST response
 
 STEP 2 — COLLECT DATA EFFICIENTLY (max 3-4 questions total):
-For ppor_convert ask in order: (1) current home value + what they paid + how long held, (2) budget for the NEW property they want to buy (this is newPropPrice — the investment or new home) + existing loan on current home (loanBalance), (3) how they plan to fund the new purchase — new borrowing only, equity release, combination, or full purchase price + stamp duty borrowed (this determines newPropLoan: if full purchase + stamp → newPropPrice*1.04, if 80% LVR → newPropPrice*0.8), (4) income/tax bracket. Then go to STEP 3.
+For ppor_convert ask in order:
+(1) current home value + what they paid for it + how long held + existing loan
+(2) Are they considering: (a) keeping PPOR and buying a separate investment, (b) converting PPOR to investment and buying a new home, or (c) both options to compare?
+    - If (a) or comparing: what is the investment budget and which STATE?
+    - If (b) or comparing: what is the new home budget and which STATE?
+    - Note: these may be DIFFERENT amounts and DIFFERENT states
+(3) How funding new purchase — full amount plus stamp duty, 80% LVR, or equity release?
+(4) Income/tax bracket.
+IMPORTANT: Set newPropPrice to the relevant new purchase price. If comparing both paths, use the OO purchase price as newPropPrice and note the investment price separately.
+Then go to STEP 3.
 For hold_or_sell ask: (1) what is driving the decision — Budget/CGT reform, cash flow pressure, life change, portfolio rebalance, or general review (this is context only, does not change the analysis), (2) property value + cost base + how long held, (3) ACTUAL weekly or annual rent + loan balance + interest only or P&I, (4) ownership — one name or joint 50/50 + income/tax rate. Then go to STEP 3.
 For sell_before_reform and sell_after_reform: same questions as hold_or_sell. Then go to STEP 3.
 For buy scenarios ask: (1) new build or established property? (2) what STATE is the new property in? → __SET_newPropState:VIC__ — ask this explicitly as it affects stamp duty and land tax (this is CRITICAL — determines CGT treatment, routes to buy_new_build or buy_established), (2) purchase price + location if mentioned (search for local growth data), (3) actual expected weekly rent OR use market data if available, (4) loan situation — LVR or equity release + existing portfolio: do they have other investment properties? are those positively or negatively geared? what is net existing rental income/loss?, (5) income/tax rate. Then go to STEP 3.
@@ -409,10 +418,18 @@ NOTE: loanBalance is the EXISTING loan on the current property.
 Ownership: if joint 50/50 set __SET_ownerPct:50__, if sole name set __SET_ownerPct:100__. CGT is calculated on each owner's share separately — at same MTR, total CGT = individual CGT × 2 for joint. newPropLoan is the loan on the NEW property being purchased — default to newPropPrice*0.8 unless client says they are borrowing more (e.g. 100% + stamp duty = newPropPrice*1.04).
 
 EXTRACT NUMBERS silently: __SET_fieldName:number__ (e.g. "$1.3m" → __SET_currentValue:1300000__)
+CRITICAL EXTRACTIONS — always extract these when mentioned:
+- "paid X", "bought for X", "purchased for X", "cost me X" → __SET_costBase:X__
+- "worth X", "valued at X", "current value X" → __SET_currentValue:X__
+- "mortgage of X", "loan of X", "owe X" → __SET_loanBalance:X__
+- "earn X", "income of X", "salary X" → extract MTR from income bracket
+- "bought in YEAR" → calculate heldYears = 2026 - YEAR → __SET_heldYears:N__
+- "bought at X" / "purchase price X" → __SET_costBase:X__
+Numbers like "1.2m", "1.2M", "$1.2m" all mean 1200000
 SET SCENARIO immediately: __SET_scenarioType:ppor_convert__
 TRIGGER when ready: __COMPLETE__
 
-TONE: Warm, concise, plain English. Australian English. Max 2 sentences per response.
+TONE: Direct, concise, plain Australian English. Max 2 sentences per response. NO filler phrases like 'Great!', 'That's really helpful!', 'Perfect!', 'Fantastic!'. NO exclamation marks. Just ask the next question directly.
 
 OUT OF SCOPE: Business sales and small business CGT concessions (Div 152) are not covered by this tool — refer to a specialist business tax adviser.
 CRITICAL: Tags are invisible codes. NEVER show them to the client. Only natural English visible.`;
@@ -1061,7 +1078,8 @@ function buildHoldOrSell() {
 
 function buildPPORConvert() {
   const curVal=n(D.currentValue),curLoan=n(D.loanBalance);
-  const curCostProvided=!!D.costBase,curCost=n(D.costBase)||curVal*0.6;
+  const curCostProvided=D.costBase!==null&&D.costBase!==undefined&&D.costBase!==''&&n(D.costBase)>0;
+  const curCost=curCostProvided?n(D.costBase):curVal*0.6;
   const newPrice=n(D.newPropPrice);
   const newLoan=n(D.newPropLoan)||newPrice*(1+(getStampDutyRate(D.newPropState||D.state,newPrice)||0.04));
   const mtr=n(D.mtr)/100||0.47,rate=n(D.interestRate)||6.2,gr=n(D.expectedGrowth)||4.5,yrs=n(D.yearsHorizon)||7;
